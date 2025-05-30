@@ -32,8 +32,7 @@ Installation
    source ~/.cmdk/cmdk.sh
    ```
 4. Bind the `⌘-k` hotkey to enter the string `cmdk\n` in your terminal
-   > [!TIP]
-   > In iTerm, this is done with `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
+   > 💡 In iTerm, this is done with `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
 
 Usage Tips
 ----------
