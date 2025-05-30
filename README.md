@@ -32,9 +32,11 @@ Installation
    source ~/.cmdk/cmdk.sh
    ```
 4. Bind the `⌘-k` hotkey to enter the string `cmdk\n` in your terminal
-    - In iTerm, this is done with `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
+   > [!TIP]
+   > In iTerm, this is done with `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
 
 Usage Tips
 ----------
 - You can also select multiple items with `TAB` before pressing enter
 - Some directories like `Library` and `/` and `.git` are full of stuff users don't need to access, so their contents are excluded. To jump around their contents, first ⌘-k to them and then ⌘-k again to see their contents.
+- You can clear the search text with `Ctrl-u`
