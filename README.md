@@ -21,9 +21,16 @@ _**Huge** thanks to [fzf](https://github.com/junegunn/fzf). I've been fed up wit
 
 Installation
 ------------
-1. `brew install fzf fd bat tiv`
-2. `git clone git@github.com:mieubrisse/cmdk.git ~/.cmdk`
-3. Add to your `.zshrc` or `.bashrc`: `source ~/.cmdk/cmdk.sh`
+1. ```sh
+   brew install fzf fd bat tiv
+   ```
+2. ```sh
+   git clone git@github.com:mieubrisse/cmdk.git ~/.cmdk
+   ```
+3. Add to your `.zshrc` or `.bashrc`:
+   ```sh
+   source ~/.cmdk/cmdk.sh
+   ```
 4. Bind the `⌘-k` hotkey to enter the string `cmdk\n` in your terminal
     - In iTerm, this is done with `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
 
