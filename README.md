@@ -1,8 +1,8 @@
 cmdk
 ====
-The ⌘-k "access anything" shortcut is amazing on Notion, Slack, etc.
+The ⌘-k "access anything" shortcut is awesome on Notion, Slack, etc.
 
-The terminal sucks: typing tons of `cd`s and `TAB`s just to get anything done.
+The terminal feels like a dinosaur in comparison: tons of repeated `cd` and `ls` and `TAB` just to get anything done.
 
 This is ⌘-k for the terminal: access anything on your filesystem, from anywhere, with previews before you open:
 
@@ -33,9 +33,16 @@ Installation
    ```
 4. Bind the `⌘-k` hotkey to send the text `cmdk\n` in your terminal
    > 💡 In iTerm, this is done with `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
+5. Open a new shell
 
-Usage Tips
-----------
-- You can select multiple items with `TAB` before pressing enter
-- You can clear the search text with `Ctrl-u`
-- Some directories like `Library` and `/` and `.git` are full of stuff users don't need to access, so their contents are excluded. To get to their contents, first ⌘-k to them and then ⌘-k again to see their contents.
+Usage
+-----
+Press ⌘-k (or type `cmdk`) and...
+
+- Type to start filtering
+- `Ctrl-j` and `Ctrl-k` to scroll up and down the results list
+- `ENTER` to select the result
+- `TAB` to select multiple items before `ENTER`
+- `Ctrl-u` to clear the selection
+
+> ⚠️ Some directories like `Library`, `/`, and `.git` are full of stuff users don't need to access, so their contents are excluded. To get to their contents, first ⌘-k to them and then ⌘-k again to see their contents.
