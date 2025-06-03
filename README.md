@@ -13,7 +13,7 @@ This is ⌘-k for the terminal: access anything on your filesystem, from anywher
 Based on what you choose...
 
 - Directories get `cd`d to
-- Text files get opened in Vim
+- Text files get opened in `vim`
 - Images and PDFs get opened in the Preview app
 - `.key` files get opened in Keynote
 
@@ -40,9 +40,16 @@ Usage
 Press ⌘-k (or type `cmdk`) and...
 
 - Type to start filtering
+  > 💡 If you're trying to get a directory, add a `/` to the end of your search term. E.g. `down/` will pull up the `Downloads` directory
 - `Ctrl-j` and `Ctrl-k` to scroll up and down the results list
 - `ENTER` to select the result
 - `TAB` to select multiple items before `ENTER`
 - `Ctrl-u` to clear the selection
 
 > ⚠️ Some directories like `Library`, `/`, and `.git` are full of stuff users don't need to access, so their contents are excluded. To get to their contents, first ⌘-k to them and then ⌘-k again to see their contents.
+
+TODO
+----
+- [Allow customizing the program used to open files](https://github.com/mieubrisse/cmdk/issues/4)
+- [Allow for favoriting files that pop to the top of the search](https://github.com/mieubrisse/cmdk/issues/5)
+- [Store the results of a selection in the history](https://github.com/mieubrisse/cmdk/issues/1)
