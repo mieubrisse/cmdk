@@ -13,7 +13,7 @@ case "${1}" in
                 ${ls_base_cmd} "${1}"
                 ;; 
             image/*) 
-                tiv -w 100 -h 100 "${1}"
+                tiv -w 100 -h 100 "${1}" 2>/dev/null
                 ;; 
         esac
         ;;
