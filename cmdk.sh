@@ -1,7 +1,6 @@
-# NOTE: relies on a CMDK_DIRPATH environment variable being set
-# The value of this variable should be the path to the repo
-
 function cmdk() {
+    # If the CMDK_DIRPATH var is set, it's assumed to be where the the 'cmdk' repo (https://github.com/mieubrisse/cmdk) is checked out
+    # Otherwise, use ~/.cmdk
     if [ -z "${CMDK_DIRPATH}" ]; then
         cmdk_dirpath="${HOME}/.cmdk"
     else
