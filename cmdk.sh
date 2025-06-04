@@ -1,3 +1,5 @@
+# ARGS:
+#   -o  Only list the contents of the current directory (useful to have a second iTerm keybinding for this; I've chosen Cmd-l)
 function cmdk() {
     # If the CMDK_DIRPATH var is set, it's assumed to be where the the 'cmdk' repo (https://github.com/mieubrisse/cmdk) is checked out
     # Otherwise, use ~/.cmdk
@@ -13,7 +15,7 @@ function cmdk() {
     # --scheme=path optimizes for path-based input
     # --with-nth allows us to use the custom sorting mechanism
     IFS=$'\n' output_paths=( 
-        $(FZF_DEFAULT_COMMAND="sh ${cmdk_dirpath}/list-files.sh" fzf \
+        $(FZF_DEFAULT_COMMAND="sh ${cmdk_dirpath}/list-files.sh ${1}" fzf \
             -m \
             --ansi \
             --bind='change:top' \
