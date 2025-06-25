@@ -43,6 +43,9 @@ function cmdk() {
                     text/*)
                         text_files+=("${output}")
                         ;;
+                    application/json)
+                        text_files+=("${output}")
+                        ;;
                     inode/directory)
                         dirs+=("${output}")
                         ;;
