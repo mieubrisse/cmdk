@@ -20,6 +20,9 @@ case "${1}" in
             image/*) 
                 tiv -w 100 -h 100 "${1}" 2>/dev/null
                 ;; 
+            application/zip)
+                unzip -l "${1}"
+                ;;
         esac
         ;;
 esac
