@@ -1,6 +1,7 @@
 ls_base_cmd='ls --color=always'
 
-bat_base_cmd="bat --color=always"
+# We use --style=plain to avoid showing line numbers and file header (which are both unneeded here)
+bat_base_cmd="bat --style=plain --color=always"
 
 case "${1}" in
     HOME)
@@ -22,6 +23,9 @@ case "${1}" in
                 ;; 
             application/zip)
                 unzip -l "${1}"
+                ;;
+            application/pdf)
+                pdftotext "${1}" -
                 ;;
         esac
         ;;

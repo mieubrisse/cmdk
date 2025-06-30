@@ -24,8 +24,10 @@ _**Huge** thanks to [fzf](https://github.com/junegunn/fzf). I've been fed up wit
 
 Installation
 ------------
-1. ```sh
-   brew install fzf fd bat tiv
+1. Install `cmdk` and dependencies:
+   ```sh
+   # NOTE: bat, tiv, and poppler are optional: for previewing text, image, and PDF files respectively
+   brew install fzf fd bat tiv poppler
    ```
 2. ```sh
    git clone git@github.com:mieubrisse/cmdk.git ~/.cmdk
