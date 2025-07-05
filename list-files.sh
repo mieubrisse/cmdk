@@ -1,7 +1,10 @@
+set -euo pipefail
+script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
+
 fd_base_cmd="fd --follow --hidden --color=always"
 
 # If the user passes in a '-o' argument, we only list the contents of the current directory
-if [ "${1}" = "-o" ]; then
+if [ "${1:-}" = "-o" ]; then
     ${fd_base_cmd} --max-depth 1 .
     exit
 fi

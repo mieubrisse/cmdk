@@ -1,3 +1,6 @@
+set -euo pipefail
+script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
+
 ls_base_cmd='ls --color=always'
 
 # We use --style=plain to avoid showing line numbers and file header (which are both unneeded here)
