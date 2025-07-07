@@ -13,7 +13,7 @@ This is ⌘-k for the terminal: access anything on your filesystem, from anywher
 
 ![](./demo2.png)
 
-Based on what you choose...
+When you press enter...
 
 - Directories get `cd`d to
 - Text files get opened in `vim`
@@ -34,13 +34,13 @@ Installation
    ```
 3. Add to your `.zshrc` or `.bashrc`:
    ```sh
-   source ~/.cmdk/cmdk.sh
+   source ~/.cmdk/cmdk.sh   # This will make a 'cmdk' function available in your shell
    ```
-4. Bind the `⌘-k` hotkey to send the text `cmdk\n` in your terminal
+4. (Optional) Bind the `⌘-k` hotkey to send the text `cmdk\n` in your terminal
    > 💡 In iTerm, this is done with `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`.
 
    > 💡 If you prefer another hotkey (e.g. `⌘-p`), simply bind that to send the `cmdk\n` string instead.
-5. Open a new shell
+5. Open a new shell and press ⌘-K (if you bound it) or enter `cmdk` (if you don't bind ⌘-K)
 
 Usage
 -----
