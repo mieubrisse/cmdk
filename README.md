@@ -16,10 +16,9 @@ This is ⌘-k for the terminal: access anything on your filesystem, from anywher
 When you press enter, the type of selected files are identified and...
 
 - Directories get `cd`d to
-- Text files get opened in `vim`
+- Text files get opened in the command of your [`$EDITOR` variable](https://bash.cyberciti.biz/guide/$EDITOR_variable) (or `vim -O` if it's unset)
 - Images and PDFs get opened in the Preview app
 - `.key` files get opened in Keynote
-- 
 
 _I'm extremely grateful to [fzf](https://github.com/junegunn/fzf); this project wouldn't be possible without it. I'd been fed up with terminal navigation for a decade, and fzf was the missing piece needed to make cmdk possible._
 
