@@ -80,6 +80,6 @@ function cmdk() {
     done
 
     if [ "${#text_files[@]}" -gt 0 ]; then
-        ${EDITOR:-vim -O} "${text_files[@]}"
+        vim -O "${text_files[@]}"
     fi
 }
