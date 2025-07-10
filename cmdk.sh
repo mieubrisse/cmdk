@@ -9,23 +9,26 @@ function cmdk() {
         cmdk_dirpath="${CMDK_DIRPATH}"
     fi
 
-    # EXPLANATION:
-    # -m allows multiple selections
-    # --ansi tells fzf to parse the ANSI color codes that we're generating with fd
-    # --scheme=path optimizes for path-based input
-    # --with-nth allows us to use the custom sorting mechanism
-    IFS=$'\n' output_paths=( 
-        $(FZF_DEFAULT_COMMAND="sh ${cmdk_dirpath}/list-files.sh ${1}" fzf \
+    output_paths=()
+
+    while IFS="" read -r line; do  # IFS="" -> no splitting (we may have paths with spaces)
+        output_paths+=("${line}")
+    done < <(
+        # EXPLANATION:
+        # -m allows multiple selections
+        # --ansi tells fzf to parse the ANSI color codes that we're generating with fd
+        # --scheme=path optimizes for path-based input
+        # --with-nth allows us to use the custom sorting mechanism
+        FZF_DEFAULT_COMMAND="sh ${cmdk_dirpath}/list-files.sh ${1}" fzf \
             -m \
             --ansi \
             --bind='change:top' \
             --scheme=path \
             --preview="sh ${cmdk_dirpath}/preview.sh {}"
-        )
+        if [ "${?}" -ne 0 ]; then
+            return
+        fi
     )
-    if [ "${?}" -ne 0 ]; then
-        return
-    fi
 
     dirs=()
     text_files=()
@@ -70,6 +73,7 @@ function cmdk() {
         echo "Error: Cannot cd to more than one directory at a time" >&2
         return 1
     fi
+    
 
     for open_target_filepath in "${open_targets[@]}"; do
         open "${open_target_filepath}"
