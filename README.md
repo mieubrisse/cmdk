@@ -39,14 +39,11 @@ Installation
 4. (Optional) Bind the `⌘-k` hotkey (or any other if you prefer) to send the text `cmdk\n` in your terminal
    <details>
    <summary>iTerm</summary>
-   `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
+       `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
    </details>
    <details>
    <summary>Ghostty</summary>
-   ```
-   # ~/.config/ghostty/config   (or $XDG_CONFIG_HOME/ghostty/config)
-   keybind = cmd+k=text:cmdk\r
-   ```
+       Inside `~/.config/ghostty/config` (or `$XDG_CONFIG_HOME/ghostty/config`), add `keybind = cmd+k=text:cmdk\r`
    </details>
 5. Open a new shell and press your hotkey (⌘-K if you bound it) or enter `cmdk` (if you don't have a hotkey)
 
