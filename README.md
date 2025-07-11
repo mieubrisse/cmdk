@@ -36,7 +36,7 @@ Installation
    ```sh
    source ~/.cmdk/cmdk.sh   # This will make a 'cmdk' function available in your shell
    ```
-4. (Optional) Bind the `⌘-k` hotkey (or any other if you prefer) to send the text `cmdk\n` in your terminal
+4. (Optional) Bind the `⌘-k` hotkey (or any other if you prefer) to send the text `cmdk\n` in your terminal:
    <details>
    <summary>iTerm</summary>
    
@@ -46,7 +46,10 @@ Installation
    <details>
    <summary>Ghostty</summary>
    
-   Inside `~/.config/ghostty/config` (or `$XDG_CONFIG_HOME/ghostty/config`), add `keybind = cmd+k=text:cmdk\r`
+   ```
+   # ~/.config/ghostty/config  (or $XDG_CONFIG_HOME/ghostty/config)
+   keybind = cmd+k=text:cmdk\r
+   ```
    
    </details>
 5. Open a new shell and press your hotkey (⌘-K if you bound it) or enter `cmdk` (if you don't have a hotkey)
