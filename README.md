@@ -38,13 +38,13 @@ Installation
    ```
 4. (Optional) Bind the `⌘-k` hotkey (or any other if you prefer) to send the text `cmdk\n` in your terminal:
    <details>
-   <summary>iTerm</summary>
+   <summary>💻 iTerm</summary>
    
    `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
    
    </details>
    <details>
-   <summary>Ghostty</summary>
+   <summary>👻 Ghostty</summary>
    
    ```
    # ~/.config/ghostty/config  (or $XDG_CONFIG_HOME/ghostty/config)
