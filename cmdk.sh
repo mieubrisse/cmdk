@@ -1,6 +1,9 @@
+
 # ARGS:
 #   -o  Only list the contents of the current directory (useful to have a second iTerm keybinding for this; I've chosen Cmd-l)
 function cmdk() {
+    set -x
+
     # If the CMDK_DIRPATH var is set, it's assumed to be where the the 'cmdk' repo (https://github.com/mieubrisse/cmdk) is checked out
     # Otherwise, use ~/.cmdk
     if [ -z "${CMDK_DIRPATH}" ]; then
@@ -9,26 +12,32 @@ function cmdk() {
         cmdk_dirpath="${CMDK_DIRPATH}"
     fi
 
-    output_paths=()
-
-    while IFS="" read -r line; do  # IFS="" -> no splitting (we may have paths with spaces)
-        output_paths+=("${line}")
-    done < <(
-        # EXPLANATION:
-        # -m allows multiple selections
-        # --ansi tells fzf to parse the ANSI color codes that we're generating with fd
-        # --scheme=path optimizes for path-based input
-        # --with-nth allows us to use the custom sorting mechanism
+    # EXPLANATION:
+    # -m allows multiple selections
+    # --ansi tells fzf to parse the ANSI color codes that we're generating with fd
+    # --scheme=path optimizes for path-based input
+    # --with-nth allows us to use the custom sorting mechanism
+    selected_paths="$(
         FZF_DEFAULT_COMMAND="sh ${cmdk_dirpath}/list-files.sh ${1}" fzf \
             -m \
             --ansi \
             --bind='change:top' \
             --scheme=path \
             --preview="sh ${cmdk_dirpath}/preview.sh {}"
-        if [ "${?}" -ne 0 ]; then
-            return
-        fi
-    )
+    )"
+
+    echo "selected_paths = <<<${selected_paths}>>>"
+
+    if [ "${?}" -ne 0 ]; then
+        return
+    fi
+
+    output_paths=()
+    while IFS="" read -r line; do  # IFS="" -> no splitting (we may have paths with spaces)
+        output_paths+=("${line}")
+    done <<< "${selected_paths}"
+
+    echo "output_paths = <<<${selected_paths}>>>"
 
     dirs=()
     text_files=()
@@ -68,6 +77,7 @@ function cmdk() {
 
     num_dirs="${#dirs[@]}"
     if [ "${num_dirs}" -eq 1 ]; then
+        echo "Trying to cd to: ${dirs[0]}"
         cd "${dirs[0]}"
     elif [ "${num_dirs}" -gt 1 ]; then
         echo "Error: Cannot cd to more than one directory at a time" >&2
