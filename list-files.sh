@@ -5,9 +5,31 @@ script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
 
 fd_base_cmd="fd --follow --hidden --color=always"
 
+# Common project directories to exclude
+common_excludes="\
+    -E 'node_modules' \
+    -E '.git' \
+    -E 'dist' \
+    -E 'build' \
+    -E 'target' \
+    -E '.next' \
+    -E '.nuxt' \
+    -E 'coverage' \
+    -E '.pytest_cache' \
+    -E '__pycache__' \
+    -E '.venv' \
+    -E 'vendor' \
+    -E '.tox' \
+    -E '.mypy_cache' \
+    -E '.ruff_cache' \
+    -E '.turbo' \
+    -E 'out' \
+    -E '.parcel-cache' \
+    -E '.terraform'"
+
 # If the user passes in a '-o' argument, we only list the contents of the current directory
 if [ "${1:-}" = "-o" ]; then
-    ${fd_base_cmd} --max-depth 1 .
+    eval "${fd_base_cmd} --max-depth 1 ${common_excludes} ."
     exit
 fi
 
@@ -16,7 +38,7 @@ fi
 
 if [ "${PWD}" = "${HOME}" ]; then
     # Skip several directories in home that contain a bunch of garbage
-    ${fd_base_cmd} --strip-cwd-prefix \
+    eval "${fd_base_cmd} --strip-cwd-prefix \
         -E 'Applications' \
         -E 'Library' \
         -E '.pyenv' \
@@ -30,9 +52,10 @@ if [ "${PWD}" = "${HOME}" ]; then
         -E '.cache' \
         -E '.gradle' \
         -E '.zsh_sessions' \
-        .
+        ${common_excludes} \
+        ."
 else
-    ${fd_base_cmd} --strip-cwd-prefix .
+    eval "${fd_base_cmd} --strip-cwd-prefix ${common_excludes} ."
 fi
 
 echo 'HOME'   # HOME
@@ -41,7 +64,7 @@ echo '..'     # Parent directory
 # If we're not in the home directory, include stuff in the home directory
 if [ "${PWD}" != "${HOME}" ]; then
     # Skip the Applications and Library in the home directory; they contain a bunch of garbage
-    ${fd_base_cmd} \
+    eval "${fd_base_cmd} \
         -E 'Applications' \
         -E 'Library' \
         -E '.pyenv' \
@@ -55,8 +78,9 @@ if [ "${PWD}" != "${HOME}" ]; then
         -E '.cache' \
         -E '.gradle' \
         -E '.zsh_sessions' \
+        ${common_excludes} \
         . \
-        "${HOME}"
+        '${HOME}'"
 fi
 
 echo '/tmp/'  # /tmp
