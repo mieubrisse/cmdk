@@ -9,7 +9,7 @@ function cmdk
         set cmdk_dirpath "$CMDK_DIRPATH"
     end
 
-    set core_response (bash "$CMDK_DIRPATH/cmdk-core.sh" $argv[1])
+    set core_response (bash "$cmdk_dirpath/cmdk-core.sh" $argv[1])
     if test $status -ne 0
         return 1
     end
