@@ -66,30 +66,45 @@ for output in "${output_paths[@]}"; do
     esac
 done
 
-# We can open open_targets here (no need to pass them to the parent)
-for open_target_filepath in "${open_targets[@]}"; do
-    open "${open_target_filepath}"
-done
-
-# However, text files & dirs need to be passed to the parent, so they
-# get run in the user's shell process (and not this subprocess)
-
-text_files_filepath=""
-if [ "${#text_files[@]}" -gt 0 ]; then
-    text_files_filepath="$(mktemp)"
-    printf "%s\n" "${text_files[@]}" > "${text_files_filepath}"
-fi
-
-num_dirs="${#dirs[@]}"
-
-dir_to_cd=""
-if [ "${num_dirs}" -eq 1 ]; then
-    dir_to_cd="${dirs[0]}"
-elif [ "${num_dirs}" -gt 1 ]; then
+if [ "${#dirs[@]}" -gt 1 ]; then
     echo "Error: Cannot cd to more than one directory at a time" >&2
     exit 1
 fi
 
-# We put the tmp filepath first because we know it doesn't have a pipe
-# This allows us to split on comma (because the dir to cd might have a pipe)
-echo "${text_files_filepath}|${dir_to_cd}"
+cmd_to_run=()
+
+arrays=(
+    "open_targets"
+    "dirs"
+    "text_files"
+)
+for arr in "${arrays[@]}"; do
+    if [ $(eval 'echo ${#'${arr}'[@]}') -eq 0 ]; then
+        continue
+    fi
+
+    if [ "${#cmd_to_run[@]}" -gt 0 ]; then
+        cmd_to_run+=("&&")
+    fi
+
+    if [ "${arr}" = "open_targets" ]; then
+        cmd_to_run+=( "open" "${open_targets[@]}" )
+    elif [ "${arr}" = "dirs" ]; then
+        cmd_to_run+=( "cd" "${dirs[0]}" )
+    elif [ "${arr}" = "text_files" ]; then
+        editor_str="${EDITOR:-vim -O}"
+        cmd_to_run+=( ${editor_str} "${text_files[@]}" )
+    fi
+done
+
+# This should never happen, because the user should be forced to pick at
+# least one element to exit fzf successfully
+if [ "${#cmd_to_run[@]}" -eq 0 ]; then
+    echo "Error: Somehow there's no command to run; this is a bug with cmdk" >&2
+    exit 1
+fi
+
+return_filepath="$(mktemp)"
+printf "%s\n" "${cmd_to_run[@]}" > "${return_filepath}"
+
+echo "${return_filepath}"
