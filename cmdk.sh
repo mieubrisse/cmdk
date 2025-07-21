@@ -9,7 +9,7 @@ function cmdk() {
         cmdk_dirpath="${CMDK_DIRPATH}"
     fi
 
-    if ! core_response="$(bash "${CMDK_DIRPATH}/cmdk-core.sh" ${1})"; then
+    if ! core_response="$(bash "${cmdk_dirpath}/cmdk-core.sh" ${1})"; then
         return 1
     fi
 
