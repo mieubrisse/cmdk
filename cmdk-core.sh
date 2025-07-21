@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# This is the core of cmdk, written in Bash.
+# The entrypoint cmdk.sh and cmdk.fish call down to this
+#
+# Rationale: I didn't want to rewrite the entire thing to be zsh-
+# and fish-compatible :S
+
 set -euo pipefail
 script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
 

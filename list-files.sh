@@ -1,3 +1,5 @@
+#!/usr/bin/env sh
+
 set -euo pipefail
 script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
 
