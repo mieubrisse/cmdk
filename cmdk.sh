@@ -9,77 +9,31 @@ function cmdk() {
         cmdk_dirpath="${CMDK_DIRPATH}"
     fi
 
-    output_paths=()
-
-    while IFS="" read -r line; do  # IFS="" -> no splitting (we may have paths with spaces)
-        output_paths+=("${line}")
-    done < <(
-        # EXPLANATION:
-        # -m allows multiple selections
-        # --ansi tells fzf to parse the ANSI color codes that we're generating with fd
-        # --scheme=path optimizes for path-based input
-        # --with-nth allows us to use the custom sorting mechanism
-        FZF_DEFAULT_COMMAND="sh ${cmdk_dirpath}/list-files.sh ${1}" fzf \
-            -m \
-            --ansi \
-            --bind='change:top' \
-            --scheme=path \
-            --preview="sh ${cmdk_dirpath}/preview.sh {}"
-        if [ "${?}" -ne 0 ]; then
-            return
-        fi
-    )
-
-    dirs=()
-    text_files=()
-    open_targets=()
-    for output in "${output_paths[@]}"; do
-        case "${output}" in
-            HOME)
-                dirs+=("${HOME}")
-                ;;
-            *.key)   # Mac's keynote presentation files are 'application/zip' MIME type, so we have to identify by extension
-                open_targets+=("${output}")
-                ;;
-            *)
-                case $(file -b --mime-type "${output}") in
-                    text/*)
-                        text_files+=("${output}")
-                        ;;
-                    application/json)
-                        text_files+=("${output}")
-                        ;;
-                    inode/directory)
-                        dirs+=("${output}")
-                        ;;
-                    application/pdf)
-                        open_targets+=("${output}")
-                        ;;
-                    application/vnd.openxmlformats-officedocument.wordprocessingml.document)
-                        open_targets+=("${output}")
-                        ;;
-                    image/*)
-                        open_targets+=("${output}")
-                        ;;
-                esac
-                ;;
-        esac
-    done
-
-    num_dirs="${#dirs[@]}"
-    if [ "${num_dirs}" -eq 1 ]; then
-        cd "${dirs[0]}"
-    elif [ "${num_dirs}" -gt 1 ]; then
-        echo "Error: Cannot cd to more than one directory at a time" >&2
+    if ! core_response="$(bash "${CMDK_DIRPATH}/cmdk-core.sh" ${1})"; then
         return 1
     fi
-    
 
-    for open_target_filepath in "${open_targets[@]}"; do
-        open "${open_target_filepath}"
-    done
+    IFS="|" read -r text_files_filepath dir_to_cd <<< "${core_response}"
 
-    if [ "${#text_files[@]}" -gt 0 ]; then
-        ${EDITOR:-vim -O} "${text_files[@]}"
+    if [ -n "${dir_to_cd}" ]; then
+        cd "${dir_to_cd}"
+    fi
+
+    if [ -n "${text_files_filepath}" ]; then
+        text_files=()
+
+        # We use the `|| -n "${line}" ]` construction because (ChatGPT):
+        #
+        #   read only returns 0 (success) when it sees a newline after then
+        #   text it just read. When read returns 1, the loop body is skippedso
+        #   the final, newline-less line is silently lost. The extra test fixes this.
+        #
+        while IFS= read -r line || [ -n "${line}" ]; do
+            text_files+=("${line}")
+        done < text_files_filepath
+
+        if [ "${#text_files[@]}" -gt 0 ]; then
+            ${EDITOR:-"vim -O"} "${text_files[@]}"
+        fi
     fi
 }
