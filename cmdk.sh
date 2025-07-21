@@ -22,6 +22,15 @@ function cmdk() {
     if [ -n "${text_files_filepath}" ]; then
         text_files=()
 
+        # Build an array that holds the editor command and its flags
+        # We have to do this because zsh doesn't do word-splitting by default,
+        # and we can't 'setopt SH_WORD_SPLIT' else we'd set it for the user's entire shell
+        if [ -n "$ZSH_VERSION" ]; then
+            editor_cmd=( ${(z)${EDITOR:-vim -O}} )
+        else
+            IFS=' ' read -r -a editor_cmd <<< "${EDITOR:-"vim -O"}"
+        fi
+
         # We use the `|| -n "${line}" ]` construction because (ChatGPT):
         #
         #   read only returns 0 (success) when it sees a newline after then
@@ -32,8 +41,10 @@ function cmdk() {
             text_files+=("${line}")
         done < "${text_files_filepath}"
 
+        echo "${text_files[@]}"
+
         if [ "${#text_files[@]}" -gt 0 ]; then
-            ${EDITOR:-"vim -O"} "${text_files[@]}"
+            "${editor_cmd[@]}" "${text_files[@]}"
         fi
     fi
 }
