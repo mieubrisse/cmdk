@@ -34,7 +34,11 @@ Installation
    ```
 3. Add to your `.zshrc` or `.bashrc`:
    ```sh
-   source ~/.cmdk/cmdk.sh   # This will make a 'cmdk' function available in your shell
+   source ~/.cmdk/cmdk.sh   # Provides a 'cmdk' function in your shell
+   ```
+   Or if you're on `fish`, to your `~/.config/fish/config.fish`:
+   ```sh
+   source ~/.cmdk/cmdk.fish
    ```
 4. (Optional) Bind the `⌘-k` hotkey (or any other if you prefer) to send the text `cmdk\n` in your terminal:
    <details>
