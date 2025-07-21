@@ -57,6 +57,12 @@ Installation
    
    </details>
 5. Open a new shell and press your hotkey (⌘-K if you bound it) or enter `cmdk` (if you don't have a hotkey)
+6. (Optional) If you'd like to use `cmdk`'s functionality with `fzf`'s <Ctrl-T>, add the following to your `.bashrc` or `.zshrc`:
+   ```
+   export FZF_CTRL_T_COMMAND="sh ${HOME}/.cmdk/list-files.sh"
+   export FZF_CTRL_T_OPTS="-m --ansi --scheme=path --preview='sh ${HOME}/.cmdk/preview.sh {}'"
+   ```
+   TODO `fish` 
 
 Usage
 -----
