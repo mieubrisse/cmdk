@@ -30,7 +30,7 @@ function cmdk() {
         #
         while IFS= read -r line || [ -n "${line}" ]; do
             text_files+=("${line}")
-        done < text_files_filepath
+        done < "${text_files_filepath}"
 
         if [ "${#text_files[@]}" -gt 0 ]; then
             ${EDITOR:-"vim -O"} "${text_files[@]}"
