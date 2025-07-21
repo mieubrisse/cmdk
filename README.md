@@ -30,7 +30,7 @@ Installation
    brew install fzf fd bat tiv poppler
    ```
 2. ```sh
-   git clone git@github.com:mieubrisse/cmdk.git ~/.cmdk
+   git clone https://github.com/mieubrisse/cmdk.git ~/.cmdk
    ```
 3. Add to your `.zshrc` or `.bashrc`:
    ```sh
