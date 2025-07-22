@@ -27,9 +27,15 @@ common_excludes="\
     -E '.parcel-cache' \
     -E '.terraform'"
 
-# If the user passes in a '-o' argument, we only list the contents of the current directory
-if [ "${1:-}" = "-o" ]; then
+# If the user passes in a '-O' argument, we only list the contents of the current directory (max depth 1)
+if [ "${1:-}" = "-O" ]; then
     eval "${fd_base_cmd} --max-depth 1 ${common_excludes} ."
+    exit
+fi
+
+# If the user passes in a '-o' argument, we list all contents of the current directory recursively
+if [ "${1:-}" = "-o" ]; then
+    eval "${fd_base_cmd} ${common_excludes} ."
     exit
 fi
 
