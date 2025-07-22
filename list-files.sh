@@ -100,3 +100,20 @@ echo "${HOME}/.vscode"
 echo "${HOME}/.cache"
 echo "${HOME}/.gradle"
 echo "${HOME}/.zsh_sessions"
+
+# Add back common project directories so they can be navigated to
+# Check if these directories exist in the current directory and add them
+for dir in node_modules .git dist build target .next .nuxt coverage .pytest_cache __pycache__ .venv vendor .tox .mypy_cache .ruff_cache .turbo out .parcel-cache .terraform; do
+    if [ -d "./${dir}" ]; then
+        echo "./${dir}"
+    fi
+done
+
+# If we're not in home, also check for these directories in home
+if [ "${PWD}" != "${HOME}" ]; then
+    for dir in node_modules .git dist build target .next .nuxt coverage .pytest_cache __pycache__ .venv vendor .tox .mypy_cache .ruff_cache .turbo out .parcel-cache .terraform; do
+        if [ -d "${HOME}/${dir}" ]; then
+            echo "${HOME}/${dir}"
+        fi
+    done
+fi
