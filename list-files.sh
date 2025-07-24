@@ -58,30 +58,42 @@ build_excludes() {
 common_exclude_args=$(build_excludes "${common_exclude_dirs[@]}")
 home_exclude_args=$(build_excludes "${home_exclude_dirs[@]}")
 
-# If the user passes in a '-O' argument, we only list the contents of the current directory (max depth 1)
-if [ "${1:-}" = "-O" ]; then
-    ${fd_base_cmd} --max-depth 1 ${common_exclude_args} .
-    # Add back excluded directories if they exist
-    for dir in "${common_exclude_dirs[@]}"; do
-        if [ -d "./${dir}" ]; then
-            echo "./${dir}"
-        fi
-    done
+# Process command line arguments and set the fd command to run
+fd_cmd=""
+add_back_dirs=true
+
+for arg in "$@"; do
+    case "$arg" in
+        -o)
+            # Original behavior: only list the contents of the current directory (max depth 1)
+            fd_cmd="${fd_base_cmd} --max-depth 1 ${common_exclude_args} ."
+            ;;
+        -s)
+            # New subdirectories flag: list all contents of the current directory recursively
+            fd_cmd="${fd_base_cmd} ${common_exclude_args} ."
+            ;;
+        -O)
+            # Recursive listing in current directory only (no home directory or other paths)
+            fd_cmd="${fd_base_cmd} ${common_exclude_args} ."
+            ;;
+    esac
+done
+
+# If a specific command was set by flags, execute it and exit
+if [ -n "${fd_cmd}" ]; then
+    ${fd_cmd}
+    if [ "${add_back_dirs}" = true ]; then
+        # Add back excluded directories if they exist
+        for dir in "${common_exclude_dirs[@]}"; do
+            if [ -d "./${dir}" ]; then
+                echo "./${dir}"
+            fi
+        done
+    fi
     exit
 fi
 
-# If the user passes in a '-o' argument, we list all contents of the current directory recursively
-if [ "${1:-}" = "-o" ]; then
-    ${fd_base_cmd} ${common_exclude_args} .
-    # Add back excluded directories if they exist
-    for dir in "${common_exclude_dirs[@]}"; do
-        if [ -d "./${dir}" ]; then
-            echo "./${dir}"
-        fi
-    done
-    exit
-fi
-
+# Default behavior when no flags are provided
 # !!! NOTE !!!! order is important!!
 # fzf gives higher weight to lines earlier in the input, so we put most relevant things first
 

@@ -19,7 +19,7 @@ done < <(
     # --ansi tells fzf to parse the ANSI color codes that we're generating with fd
     # --scheme=path optimizes for path-based input
     # --with-nth allows us to use the custom sorting mechanism
-    FZF_DEFAULT_COMMAND="sh ${script_dirpath}/list-files.sh ${1:-}" fzf \
+    FZF_DEFAULT_COMMAND="sh ${script_dirpath}/list-files.sh $*" fzf \
         -m \
         --ansi \
         --bind='change:top' \
