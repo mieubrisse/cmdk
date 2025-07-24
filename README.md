@@ -79,6 +79,12 @@ Press ⌘-k (or type `cmdk`) and...
 
 > 💡 Sometimes you only want to jump to the contents of the current directory. This can be done by calling `cmdk -o`. I've set up a separate iTerm hotkey for this: `⌘-l` to send `cmdk -o\n`.
 
+### Command-line Flags
+
+- `-o` - Only list the contents of the current directory at depth 1 (original behavior)
+- `-s` - List all contents of the current directory recursively, including subdirectories
+- `-O` - Legacy flag, same as `-o` (kept for backward compatibility)
+
 Feedback
 --------
 Hi HN! I'd love to hear how you're using cmdk, and making it your own.

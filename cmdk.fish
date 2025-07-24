@@ -1,6 +1,7 @@
 # ARGS:
-#   -o  List all contents of the current directory recursively
-#   -O  Only list the contents of the current directory at depth 1 (useful to have a second iTerm keybinding for this; I've chosen Cmd-l)
+#   -o  Only list the contents of the current directory at depth 1 (original behavior)
+#   -s  List all contents of the current directory recursively (subdirectories)
+#   -O  Legacy flag: same as -o (kept for backward compatibility)
 function cmdk
     # If the CMDK_DIRPATH var is set, it's assumed to be where the the 'cmdk' repo (https://github.com/mieubrisse/cmdk) is checked out
     # Otherwise, use ~/.cmdk
