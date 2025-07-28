@@ -65,16 +65,12 @@ add_back_dirs=true
 for arg in "$@"; do
     case "$arg" in
         -o)
-            # Original behavior: only list the contents of the current directory (max depth 1)
-            fd_cmd="${fd_base_cmd} --max-depth 1 ${common_exclude_args} ."
-            ;;
-        -s)
-            # New subdirectories flag: list all contents of the current directory recursively
+            # Enhanced -o: list all contents of the current directory recursively
             fd_cmd="${fd_base_cmd} ${common_exclude_args} ."
             ;;
         -O)
-            # Recursive listing in current directory only (no home directory or other paths)
-            fd_cmd="${fd_base_cmd} ${common_exclude_args} ."
+            # New -O: only list the contents of the current directory (max depth 1)
+            fd_cmd="${fd_base_cmd} --max-depth 1 ${common_exclude_args} ."
             ;;
     esac
 done
