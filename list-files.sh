@@ -61,6 +61,12 @@ home_exclude_args=$(build_excludes "${home_exclude_dirs[@]}")
 # Process command line arguments and set the fd command to run
 fd_cmd=""
 add_back_dirs=false
+has_flags=false
+
+# Check if any arguments were provided
+if [ "$#" -gt 0 ]; then
+    has_flags=true
+fi
 
 for arg in "$@"; do
     case "$arg" in
@@ -76,6 +82,11 @@ for arg in "$@"; do
             ;;
     esac
 done
+
+# If flags were provided but fd_cmd is still empty, use default current directory behavior
+if [ "$has_flags" = true ] && [ -z "${fd_cmd}" ]; then
+    fd_cmd="${fd_base_cmd} --strip-cwd-prefix ${common_exclude_args} ."
+fi
 
 # If a specific command was set by flags, execute it and exit
 if [ -n "${fd_cmd}" ]; then
