@@ -77,12 +77,12 @@ Press ⌘-k (or type `cmdk`) and...
 
 > ⚠️ Some directories like `Library`, `/`, and `.git` are full of stuff users don't need to access, so their contents are excluded. To get to their contents, first ⌘-k to them and then ⌘-k again to see their contents.
 
-> 💡 Sometimes you only want to jump to the contents of the current directory. This can be done by calling `cmdk -o` for recursive listing or `cmdk -O` for shallow listing. I've set up separate iTerm hotkeys: `⌘-l` to send `cmdk -o\n` and `⌘-shift-l` to send `cmdk -O\n`.
+> 💡 Sometimes you only want to jump to the contents of the current directory. This can be done by calling `cmdk -o` for shallow listing or `cmdk -s` for recursive listing. I've set up separate iTerm hotkeys: `⌘-l` to send `cmdk -o\n` for quick access and `⌘-shift-l` to send `cmdk -s\n` for full subdirectory exploration.
 
 ### Command-line Flags
 
-- `-o` - List all contents of the current directory recursively, including subdirectories (enhanced)
-- `-O` - Only list the contents of the current directory at depth 1 (shallow listing)
+- `-o` - Only list the contents of the current directory at depth 1 (original behavior)
+- `-s` - List all contents of the current directory recursively, including subdirectories
 
 Feedback
 --------

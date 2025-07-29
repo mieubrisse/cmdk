@@ -1,6 +1,6 @@
 # ARGS:
-#   -o  List all contents of the current directory recursively (enhanced)
-#   -O  Only list the contents of the current directory at depth 1 (shallow)
+#   -o  Only list the contents of the current directory at depth 1 (original behavior)
+#   -s  List all contents of the current directory recursively (subdirectories)
 function cmdk() {
     # If the CMDK_DIRPATH var is set, it's assumed to be where the the 'cmdk' repo (https://github.com/mieubrisse/cmdk) is checked out
     # Otherwise, use ~/.cmdk

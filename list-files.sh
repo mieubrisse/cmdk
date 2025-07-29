@@ -60,17 +60,19 @@ home_exclude_args=$(build_excludes "${home_exclude_dirs[@]}")
 
 # Process command line arguments and set the fd command to run
 fd_cmd=""
-add_back_dirs=true
+add_back_dirs=false
 
 for arg in "$@"; do
     case "$arg" in
         -o)
-            # Enhanced -o: list all contents of the current directory recursively
-            fd_cmd="${fd_base_cmd} ${common_exclude_args} ."
-            ;;
-        -O)
-            # New -O: only list the contents of the current directory (max depth 1)
+            # Original behavior: only list the contents of the current directory (max depth 1)
             fd_cmd="${fd_base_cmd} --max-depth 1 ${common_exclude_args} ."
+            add_back_dirs=true
+            ;;
+        -s)
+            # New subdirectories flag: list all contents of the current directory recursively
+            fd_cmd="${fd_base_cmd} ${common_exclude_args} ."
+            add_back_dirs=true
             ;;
     esac
 done
