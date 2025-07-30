@@ -11,24 +11,25 @@ script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
 
 output_paths=()
 
+# EXPLANATION:
+# -m allows multiple selections
+# --ansi tells fzf to parse the ANSI color codes that we're generating with fd
+# --scheme=path optimizes for path-based input
+# --with-nth allows us to use the custom sorting mechanism
+fzf_output=$(FZF_DEFAULT_COMMAND="sh ${script_dirpath}/list-files.sh ${1:-}" fzf \
+    -m \
+    --ansi \
+    --bind='change:top' \
+    --scheme=path \
+    --preview="sh ${script_dirpath}/preview.sh {}")
+
+if [ "${?}" -ne 0 ]; then
+    exit 1
+fi
+
 while IFS="" read -r line; do  # IFS="" -> no splitting (we may have paths with spaces)
     output_paths+=("${line}")
-done < <(
-    # EXPLANATION:
-    # -m allows multiple selections
-    # --ansi tells fzf to parse the ANSI color codes that we're generating with fd
-    # --scheme=path optimizes for path-based input
-    # --with-nth allows us to use the custom sorting mechanism
-    FZF_DEFAULT_COMMAND="sh ${script_dirpath}/list-files.sh ${1:-}" fzf \
-        -m \
-        --ansi \
-        --bind='change:top' \
-        --scheme=path \
-        --preview="sh ${script_dirpath}/preview.sh {}"
-    if [ "${?}" -ne 0 ]; then
-        return
-    fi
-)
+done <<< "${fzf_output}"
 
 dirs=()
 text_files=()
