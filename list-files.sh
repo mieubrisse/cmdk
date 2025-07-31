@@ -3,7 +3,6 @@
 set -euo pipefail
 script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
 
-fd_base_cmd="fd --follow --hidden --color=always"
 
 # Common project directories to exclude
 common_exclude_dirs=(
@@ -48,105 +47,102 @@ home_exclude_dirs=(
 # Build exclude arguments for fd command
 build_excludes() {
     local excludes=""
-    for dir in "$@"; do
+    for dir in "${@}"; do
         excludes="${excludes} -E ${dir}"
     done
     echo "${excludes}"
 }
 
 # Build common exclude arguments
-common_exclude_args=$(build_excludes "${common_exclude_dirs[@]}")
-home_exclude_args=$(build_excludes "${home_exclude_dirs[@]}")
+common_exclude_args="$(build_excludes "${common_exclude_dirs[@]}")"
+home_exclude_args="$(build_excludes "${home_exclude_dirs[@]}")"
 
-# Process command line arguments and set the fd command to run
-fd_cmd=""
-add_back_dirs=false
-has_flags=false
+# The various modes that cmdk can operate in
 
-# Check if any arguments were provided
-if [ "$#" -gt 0 ]; then
-    has_flags=true
-fi
+SYSTEM_MODE="system"    # Show all files on the filesystem
+PWD_MODE="pwd"          # Show only the files in the current directory
+SUBDIRS_MODE="subdirs"  # Show all files in the current directory, and recurse into subdirectories
 
-for arg in "$@"; do
+
+mode="${SYSTEM_MODE}"
+for arg in "${@}"; do
     case "$arg" in
         -o)
-            # Original behavior: only list the contents of the current directory (max depth 1)
-            fd_cmd="${fd_base_cmd} --max-depth 1 ${common_exclude_args} ."
-            add_back_dirs=true
+            mode="${PWD_MODE}"
             ;;
         -s)
-            # New subdirectories flag: list all contents of the current directory recursively
-            fd_cmd="${fd_base_cmd} ${common_exclude_args} ."
-            add_back_dirs=true
+            mode="${SUBDIRS_MODE}"
             ;;
     esac
 done
 
-# If flags were provided but fd_cmd is still empty, use default current directory behavior
-if [ "$has_flags" = true ] && [ -z "${fd_cmd}" ]; then
-    fd_cmd="${fd_base_cmd} --strip-cwd-prefix ${common_exclude_args} ."
-fi
+fd_base_cmd="fd --follow --hidden --color=always"
 
-# If a specific command was set by flags, execute it and exit
-if [ -n "${fd_cmd}" ]; then
-    ${fd_cmd}
-    if [ "${add_back_dirs}" = true ]; then
-        # Add back excluded directories if they exist
-        for dir in "${common_exclude_dirs[@]}"; do
-            if [ -d "./${dir}" ]; then
-                echo "./${dir}"
-            fi
-        done
-    fi
-    exit
-fi
-
-# Default behavior when no flags are provided
-# !!! NOTE !!!! order is important!!
-# fzf gives higher weight to lines earlier in the input, so we put most relevant things first
-
-if [ "${PWD}" = "${HOME}" ]; then
-    # Skip several directories in home that contain a bunch of garbage
-    ${fd_base_cmd} --strip-cwd-prefix ${home_exclude_args} ${common_exclude_args} .
-else
-    ${fd_base_cmd} --strip-cwd-prefix ${common_exclude_args} .
-fi
-
+# --------------- Omnipresent items -------------------
 echo 'HOME'   # HOME
 echo '..'     # Parent directory
 
-# If we're not in the home directory, include stuff in the home directory
-if [ "${PWD}" != "${HOME}" ]; then
-    # Skip the Applications and Library in the home directory; they contain a bunch of garbage
-    ${fd_base_cmd} ${home_exclude_args} ${common_exclude_args} . "${HOME}"
+# --------------- Handle current directory ------------------
+pwd_restriction=""
+if [ "${mode}" = "${PWD_MODE}" ]; then
+    pwd_restriction="--max-depth 1"
 fi
 
-echo '/tmp/'  # /tmp
+home_excludes=""
+add_back_home_excludes="false"
+if [ "${PWD}" = "${HOME}" ]; then
+    home_excludes="${home_exclude_args}"
+    add_back_home_excludes="true"
+fi
 
-echo '/'      # Root
-${fd_base_cmd} --exact-depth 1 . / # Show one level of root
+${fd_base_cmd} --strip-cwd-prefix ${pwd_restriction} ${common_exclude_args} .
 
-# Add back home directories just in case the user wants to 'cd' to them
-for dir in "${home_exclude_dirs[@]}"; do
-    if [ -d "${HOME}/${dir}" ]; then
-        echo "${HOME}/${dir}"
-    fi
-done
-
-# Add back common project directories so they can be navigated to
-# Check if these directories exist in the current directory and add them
+# Now add back the directories (but not contents) of any common excludes we removed
+# TODO there's a bug where they get excluded but not added back if they're in a subdirectory!
 for dir in "${common_exclude_dirs[@]}"; do
-    if [ -d "./${dir}" ]; then
-        echo "./${dir}"
+    if [ -d "${PWD}/${dir}" ]; then
+        echo "${dir}"
     fi
 done
 
-# If we're not in home, also check for these directories in home
-if [ "${PWD}" != "${HOME}" ]; then
-    for dir in "${common_exclude_dirs[@]}"; do
-        if [ -d "${HOME}/${dir}" ]; then
-            echo "${HOME}/${dir}"
-        fi
-    done
+# And if we were in HOME, we also need to add back any of the home excludes that got removed
+# TODO there's a bug where they get excluded but not added back if they're in a subdirectory!
+for dir in "${home_exclude_dirs[@]}"; do
+    if [ -d "${PWD}/${dir}" ]; then
+        echo "${dir}"
+    fi
+done
+
+# --------------- Handle system beyond current directory -------------------
+if [ "${mode}" = "${SYSTEM_MODE}" ]; then
+    # If we're not at home, add it in (with excludes)
+    if [ "${PWD}" != "${HOME}" ]; then
+        ${fd_base_cmd} ${home_exclude_args} ${common_exclude_args} . "${HOME}"
+
+        # Add back common excluded directories in HOME
+        # TODO there's a bug where they get excluded but not added back if they're in a subdirectory!
+        for dir in "${common_exclude_dirs[@]}"; do
+            if [ -d "${HOME}/${dir}" ]; then
+                echo "${HOME}/${dir}"
+            fi
+        done
+
+        # Add back home-specific excluded directories in HOME
+        # TODO there's a bug where they get excluded but not added back if they're in a subdirectory!
+        for dir in "${home_exclude_dirs[@]}"; do
+            if [ -d "${HOME}/${dir}" ]; then
+                echo "${HOME}/${dir}"
+            fi
+        done
+    fi
+
+    echo '/tmp/'  # /tmp
+
+    echo '/'      # Root
+    ${fd_base_cmd} --exact-depth 1 . / # Show one level of root
 fi
+
+
+# --------------- Ominpresent items ------------------------
+echo "HOME"
+echo ".."
