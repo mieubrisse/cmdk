@@ -59,8 +59,8 @@ Installation
 5. Open a new shell and press your hotkey (⌘-K if you bound it) or enter `cmdk` (if you don't have a hotkey)
 6. (Optional) If you'd like to use `cmdk`'s functionality with `fzf`'s <Ctrl-T>, add the following to your `.bashrc` or `.zshrc`:
    ```
-   export FZF_CTRL_T_COMMAND="bash ${HOME}/.cmdk/list-files.sh"
-   export FZF_CTRL_T_OPTS="-m --ansi --scheme=path --preview='bash ${HOME}/.cmdk/preview.sh {}'"
+   export FZF_CTRL_T_COMMAND="sh ${HOME}/.cmdk/list-files.sh"
+   export FZF_CTRL_T_OPTS="-m --ansi --scheme=path --preview='sh ${HOME}/.cmdk/preview.sh {}'"
    ```
    TODO `fish` 
 
@@ -77,7 +77,7 @@ Press ⌘-k (or type `cmdk`) and...
 
 > ⚠️ Some directories like `Library`, `/`, and `.git` are full of stuff users don't need to access, so their contents are excluded. To get to their contents, first ⌘-k to them and then ⌘-k again to see their contents.
 
-> 💡 Sometimes you only want to jump to the contents of the current directory. This can be done by calling `cmdk -o` to list **o**nly the contents of the current directory (no recursing) or `cmdk -s` to list **s**ubdirectories (recursing). I've set up separate iTerm hotkeys: `⌘-k` to send `cmdk\n`, and `⌘-shift-k` for `cmdk -s\n`.
+> 💡 Sometimes you only want to jump to the contents of the current directory. This can be done by calling `cmdk -o` for shallow listing or `cmdk -s` for recursive listing. I've set up separate iTerm hotkeys: `⌘-l` to send `cmdk -o\n` for quick access and `⌘-shift-l` to send `cmdk -s\n` for full subdirectory exploration.
 
 ### Command-line Flags
 
