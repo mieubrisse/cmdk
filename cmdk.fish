@@ -1,5 +1,6 @@
 # ARGS:
-#   -o  Only list the contents of the current directory (useful to have a second iTerm keybinding for this; I've chosen Cmd-l)
+#   -o  Only list the contents of the current directory at depth 1 (original behavior)
+#   -s  List all contents of the current directory recursively (subdirectories)
 function cmdk
     # If the CMDK_DIRPATH var is set, it's assumed to be where the the 'cmdk' repo (https://github.com/mieubrisse/cmdk) is checked out
     # Otherwise, use ~/.cmdk
@@ -9,7 +10,7 @@ function cmdk
         set cmdk_dirpath "$CMDK_DIRPATH"
     end
 
-    set core_response (bash "$cmdk_dirpath/cmdk-core.sh" $argv[1])
+    set core_response (bash "$cmdk_dirpath/cmdk-core.sh" $argv)
     if test $status -ne 0
         return 1
     end
