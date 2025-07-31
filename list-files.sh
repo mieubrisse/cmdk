@@ -78,10 +78,6 @@ done
 
 fd_base_cmd="fd --follow --hidden --color=always"
 
-# --------------- Omnipresent items -------------------
-echo 'HOME'   # HOME
-echo '..'     # Parent directory
-
 # --------------- Handle current directory ------------------
 pwd_restriction=""
 if [ "${mode}" = "${PWD_MODE}" ]; then
