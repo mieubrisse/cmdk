@@ -41,21 +41,21 @@ Installation
    source ~/.cmdk/cmdk.fish
    ```
 4. (Optional) Bind the `⌘-k` hotkey (or any other if you prefer) to send the text `cmdk\n` in your terminal:
-   <details>
-   <summary>💻 iTerm</summary>
-   
-   `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
-   
-   </details>
-   <details>
-   <summary>👻 Ghostty</summary>
-   
-   ```
-   # ~/.config/ghostty/config  (or $XDG_CONFIG_HOME/ghostty/config)
-   keybind = cmd+k=text:cmdk\r
-   ```
-   
-   </details>
+    <details>
+    <summary>💻 iTerm</summary>
+
+    `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
+
+    </details>
+    <details>
+    <summary>👻 Ghostty</summary>
+
+    ```
+    # ~/.config/ghostty/config  (or $XDG_CONFIG_HOME/ghostty/config)
+    keybind = cmd+k=text:cmdk\r
+    ```
+
+    </details>
 5. Open a new shell and press your hotkey (⌘-K if you bound it) or enter `cmdk` (if you don't have a hotkey)
 6. (Optional) If you'd like to use `cmdk`'s functionality with `fzf`'s <Ctrl-T>, add the following to your `.bashrc` or `.zshrc`:
    ```
@@ -74,6 +74,8 @@ Press ⌘-k (or type `cmdk`) and...
 - `ENTER` to select the result
 - `TAB` to select multiple items before `ENTER`
 - `Ctrl-u` to clear the selection
+- `Ctrl-t` to toggle visibility of gitignored files (like `.env`)
+- `Ctrl-g` to toggle between all files and git-changed files only (modified, staged, untracked)
 
 > ⚠️ Some directories like `Library`, `/`, and `.git` are full of stuff users don't need to access, so their contents are excluded. To get to their contents, first ⌘-k to them and then ⌘-k again to see their contents.
 
@@ -83,13 +85,64 @@ Press ⌘-k (or type `cmdk`) and...
 
 - `-o` - Only list the contents of the current directory at depth 1 (original behavior)
 - `-s` - List all contents of the current directory recursively, including subdirectories
+- `-e` - Show hidden files that are typically excluded by `.gitignore` (including `.env` files)
+
+### Editor Configuration
+
+By default, cmdk opens text files using your `$EDITOR` environment variable, or falls back to `vim -O` if unset. You can configure any editor:
+
+**Neovim:**
+```bash
+export EDITOR=nvim
+```
+
+**Cursor:**
+```bash
+export EDITOR=cursor
+```
+
+**VS Code:**
+```bash
+export EDITOR="code -w"
+```
+
+**Neovim with vertical splits for multiple files:**
+```bash
+export EDITOR="nvim -O"
+```
+
+**For Fish shell users**, add to `~/.config/fish/config.fish`:
+```fish
+set -gx EDITOR nvim
+```
+
+**For Bash/Zsh users**, add to `~/.bashrc` or `~/.zshrc`:
+```bash
+export EDITOR=nvim
+```
 
 Feedback
 --------
 Hi HN! I'd love to hear how you're using cmdk, and making it your own.
 
+Testing
+-------
+cmdk uses [BATS](https://github.com/bats-core/bats-core) (Bash Automated Testing System) for automated tests.
+
+```sh
+brew install bats-core  # if not already installed
+bats test/
+```
+
+Test files:
+- `test/list-files.bats` — file discovery, depth modes, spaces/special chars, exclude dirs
+- `test/git-files.bats` — git-changed file detection, deduplication, non-git fallback
+- `test/toggle-state.bats` — toggle init, flip, get, cleanup
+- `test/preview.bats` — text/directory/HOME preview
+
+For manual testing across shells (bash, zsh, fish), see [testing-checklist.md](testing-checklist.md).
+
 TODO
 ----
-- [Allow customizing the program used to open files](https://github.com/mieubrisse/cmdk/issues/4)
 - [Allow for favoriting files that pop to the top of the search](https://github.com/mieubrisse/cmdk/issues/5)
 - [Store the results of a selection in the history](https://github.com/mieubrisse/cmdk/issues/1)

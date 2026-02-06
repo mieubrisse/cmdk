@@ -1,7 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -euo pipefail
-script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
 
 
 # Common project directories to exclude
@@ -65,6 +64,8 @@ SUBDIRS_MODE="subdirs"  # Show all files in the current directory, and recurse i
 
 
 mode="${SYSTEM_MODE}"
+show_ignored="false"
+if [ $# -gt 0 ]; then
 for arg in "${@}"; do
     case "$arg" in
         -o)
@@ -73,10 +74,17 @@ for arg in "${@}"; do
         -s)
             mode="${SUBDIRS_MODE}"
             ;;
+        -e)
+            show_ignored="true"
+            ;;
     esac
 done
+fi
 
 fd_base_cmd="fd --follow --hidden --color=always"
+if [ "$show_ignored" = "true" ]; then
+    fd_base_cmd="${fd_base_cmd} --no-ignore"
+fi
 
 # --------------- Handle current directory ------------------
 pwd_restriction=""
@@ -85,13 +93,12 @@ if [ "${mode}" = "${PWD_MODE}" ]; then
 fi
 
 home_excludes=""
-add_back_home_excludes="false"
 if [ "${PWD}" = "${HOME}" ]; then
     home_excludes="${home_exclude_args}"
-    add_back_home_excludes="true"
 fi
 
-${fd_base_cmd} --strip-cwd-prefix ${pwd_restriction} ${common_exclude_args} .
+# shellcheck disable=SC2086
+${fd_base_cmd} --strip-cwd-prefix ${pwd_restriction} ${common_exclude_args} ${home_excludes} .
 
 # Now add back the directories (but not contents) of any common excludes we removed
 # TODO there's a bug where they get excluded but not added back if they're in a subdirectory!
@@ -113,6 +120,7 @@ done
 if [ "${mode}" = "${SYSTEM_MODE}" ]; then
     # If we're not at home, add it in (with excludes)
     if [ "${PWD}" != "${HOME}" ]; then
+        # shellcheck disable=SC2086
         ${fd_base_cmd} ${home_exclude_args} ${common_exclude_args} . "${HOME}"
 
         # Add back common excluded directories in HOME
@@ -139,6 +147,12 @@ if [ "${mode}" = "${SYSTEM_MODE}" ]; then
 fi
 
 
-# --------------- Ominpresent items ------------------------
-echo "HOME"
-echo ".."
+# --------------- Omnipresent items ------------------------
+# Only show HOME for system mode, but show .. for all modes except system (for navigation)
+if [ "${mode}" = "${SYSTEM_MODE}" ]; then
+    echo "HOME"
+    echo ".."
+else
+    # For -o and -s modes, only show .. for navigation back
+    echo ".."
+fi

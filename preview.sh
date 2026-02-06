@@ -1,12 +1,18 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -euo pipefail
-script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
 
-ls_base_cmd='ls --color=always'
+if command -v bat >/dev/null 2>&1; then
+    bat_base_cmd="bat --style=plain --color=always"
+else
+    bat_base_cmd="cat"
+fi
 
-# We use --style=plain to avoid showing line numbers and file header (which are both unneeded here)
-bat_base_cmd="bat --style=plain --color=always"
+if ls --color=always / >/dev/null 2>&1; then
+    ls_base_cmd='ls --color=always'
+else
+    ls_base_cmd='ls -G'
+fi
 
 case "${1}" in
     HOME)
@@ -24,13 +30,25 @@ case "${1}" in
                 ${ls_base_cmd} "${1}"
                 ;; 
             image/*) 
-                tiv -w 100 -h 100 "${1}" 2>/dev/null
+                if command -v tiv >/dev/null 2>&1; then
+                    tiv -w 100 -h 100 "${1}" 2>/dev/null
+                else
+                    echo "[image preview requires tiv]"
+                fi
                 ;; 
             application/zip)
-                unzip -l "${1}"
+                if command -v unzip >/dev/null 2>&1; then
+                    unzip -l "${1}"
+                else
+                    echo "[zip preview requires unzip]"
+                fi
                 ;;
             application/pdf)
-                pdftotext "${1}" -
+                if command -v pdftotext >/dev/null 2>&1; then
+                    pdftotext "${1}" -
+                else
+                    echo "[PDF preview requires pdftotext]"
+                fi
                 ;;
         esac
         ;;

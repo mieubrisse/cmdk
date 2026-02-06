@@ -7,32 +7,80 @@
 # and fish-compatible :S
 
 set -euo pipefail
+
+for cmd in fzf fd file; do
+    if ! command -v "${cmd}" >/dev/null 2>&1; then
+        echo "Error: '${cmd}' is required but not found. Please install it first." >&2
+        exit 1
+    fi
+done
+
 script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
+
+validated_flags=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -o|-s|-e)
+            validated_flags+=("$1")
+            shift
+            ;;
+        *)
+            echo "Error: Unknown flag '$1'. Allowed flags: -o, -s, -e" >&2
+            exit 1
+            ;;
+    esac
+done
+
+flags_str="${validated_flags[*]:-}"
 
 output_paths=()
 
+# Initialize toggle states based on -e flag
+if echo "${flags_str}" | grep -q '\-e'; then
+    bash "${script_dirpath}/actions/toggle-state.sh" init on >/dev/null
+else
+    bash "${script_dirpath}/actions/toggle-state.sh" init off >/dev/null
+fi
+bash "${script_dirpath}/actions/git-toggle-state.sh" init off >/dev/null
+
+# Use a temporary file instead of process substitution for better shell compatibility
+temp_output_file="$(mktemp)"
+
+cleanup() {
+    rm -f "${temp_output_file}"
+    bash "${script_dirpath}/actions/toggle-state.sh" cleanup >/dev/null 2>&1 || true
+    bash "${script_dirpath}/actions/git-toggle-state.sh" cleanup >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+# EXPLANATION:
+# -m allows multiple selections
+# --ansi tells fzf to parse the ANSI color codes that we're generating with fd
+# --scheme=path optimizes for path-based input
+# --with-nth allows us to use the custom sorting mechanism
+# --bind='ctrl-i:...' adds Ctrl+I to toggle .env visibility
+FZF_DEFAULT_COMMAND="bash ${script_dirpath}/reload-files.sh ${flags_str}" fzf \
+    -m \
+    --ansi \
+    --bind='change:top' \
+    --bind="ctrl-t:reload(bash ${script_dirpath}/actions/toggle-state.sh toggle >/dev/null && bash ${script_dirpath}/reload-files.sh ${flags_str})" \
+    --bind="ctrl-g:reload(bash ${script_dirpath}/actions/git-toggle-state.sh toggle >/dev/null && bash ${script_dirpath}/reload-files.sh ${flags_str})" \
+    --scheme=path \
+    --preview="bash ${script_dirpath}/preview.sh {}" > "${temp_output_file}" || exit_code=$?
+exit_code=${exit_code:-0}
+
+if [ "$exit_code" -ne 0 ]; then
+    exit 1
+fi
+
 while IFS="" read -r line; do  # IFS="" -> no splitting (we may have paths with spaces)
     output_paths+=("${line}")
-done < <(
-    # EXPLANATION:
-    # -m allows multiple selections
-    # --ansi tells fzf to parse the ANSI color codes that we're generating with fd
-    # --scheme=path optimizes for path-based input
-    # --with-nth allows us to use the custom sorting mechanism
-    FZF_DEFAULT_COMMAND="bash ${script_dirpath}/list-files.sh ${*}" fzf \
-        -m \
-        --ansi \
-        --bind='change:top' \
-        --scheme=path \
-        --preview="bash ${script_dirpath}/preview.sh {}"
-    if [ "${?}" -ne 0 ]; then
-        return
-    fi
-)
+done < "${temp_output_file}"
 
 dirs=()
 text_files=()
 open_targets=()
+if [ "${#output_paths[@]}" -gt 0 ]; then
 for output in "${output_paths[@]}"; do
     case "${output}" in
         HOME)
@@ -65,11 +113,14 @@ for output in "${output_paths[@]}"; do
             ;;
     esac
 done
+fi
 
 # We can open open_targets here (no need to pass them to the parent)
-for open_target_filepath in "${open_targets[@]}"; do
-    open "${open_target_filepath}"
-done
+if [ "${#open_targets[@]}" -gt 0 ]; then
+    for open_target_filepath in "${open_targets[@]}"; do
+        open "${open_target_filepath}"
+    done
+fi
 
 # However, text files & dirs need to be passed to the parent, so they
 # get run in the user's shell process (and not this subprocess)

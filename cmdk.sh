@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # ARGS:
 #   -o  Only list the contents of the current directory at depth 1 (original behavior)
 #   -s  List all contents of the current directory recursively (subdirectories)
@@ -17,7 +18,7 @@ function cmdk() {
     IFS="|" read -r text_files_filepath dir_to_cd <<< "${core_response}"
 
     if [ -n "${dir_to_cd}" ]; then
-        cd "${dir_to_cd}"
+        cd "${dir_to_cd}" || return 1
     fi
 
     if [ -n "${text_files_filepath}" ]; then
@@ -27,6 +28,7 @@ function cmdk() {
         # We have to do this because zsh doesn't do word-splitting by default,
         # and we can't 'setopt SH_WORD_SPLIT' else we'd set it for the user's entire shell
         if [ -n "$ZSH_VERSION" ]; then
+            # shellcheck disable=SC2296,SC2206
             editor_cmd=( ${(z)${EDITOR:-vim -O}} )
         else
             IFS=' ' read -r -a editor_cmd <<< "${EDITOR:-"vim -O"}"
