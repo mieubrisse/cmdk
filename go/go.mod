@@ -2,7 +2,10 @@ module github.com/mieubrisse/cmdk
 
 go 1.25.6
 
-require github.com/spf13/cobra v1.10.2
+require (
+	github.com/mieubrisse/stacktrace v0.1.0
+	github.com/spf13/cobra v1.10.2
+)
 
 require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
