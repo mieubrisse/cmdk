@@ -1,8 +1,8 @@
 package listing
 
-// CommonExcludeDirs are project directories excluded in all modes.
+// commonExcludeDirNames are project directories excluded in all modes.
 // These match the exclude lists in the original list-files.sh.
-var CommonExcludeDirs = []string{
+var commonExcludeDirNames = []string{
 	"node_modules",
 	".git",
 	"dist",
@@ -24,8 +24,8 @@ var CommonExcludeDirs = []string{
 	".terraform",
 }
 
-// HomeExcludeDirs are directories excluded only when listing from $HOME.
-var HomeExcludeDirs = []string{
+// homeExcludeDirNames are directories excluded only when listing from $HOME.
+var homeExcludeDirNames = []string{
 	"Applications",
 	"Library",
 	".pyenv",

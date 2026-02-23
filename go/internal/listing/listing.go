@@ -38,9 +38,9 @@ func ListFiles(w io.Writer, mode Mode) error {
 		fdArgs = append(fdArgs, "--max-depth", "1")
 	}
 
-	fdArgs = appendExcludes(fdArgs, CommonExcludeDirs)
+	fdArgs = appendExcludes(fdArgs, commonExcludeDirNames)
 	if inHome {
-		fdArgs = appendExcludes(fdArgs, HomeExcludeDirs)
+		fdArgs = appendExcludes(fdArgs, homeExcludeDirNames)
 	}
 
 	fdArgs = append(fdArgs, ".") // search pattern
@@ -51,16 +51,18 @@ func ListFiles(w io.Writer, mode Mode) error {
 
 	// Add back excluded directories that exist at depth 1 in PWD.
 	// These were excluded from fd results but we still want the directory entry itself.
-	addBackExcludedDirs(w, pwd, pwd, CommonExcludeDirs)
-	addBackExcludedDirs(w, pwd, pwd, HomeExcludeDirs)
+	addBackExcludedDirs(w, pwd, pwd, commonExcludeDirNames)
+	if inHome {
+		addBackExcludedDirs(w, pwd, pwd, homeExcludeDirNames)
+	}
 
 	// --------------- System mode: list beyond current directory ---------------
 	if mode == ModeSystem {
 		// List HOME if we're not already there
 		if !inHome {
 			homeFdArgs := buildFdBaseArgs()
-			homeFdArgs = appendExcludes(homeFdArgs, HomeExcludeDirs)
-			homeFdArgs = appendExcludes(homeFdArgs, CommonExcludeDirs)
+			homeFdArgs = appendExcludes(homeFdArgs, homeExcludeDirNames)
+			homeFdArgs = appendExcludes(homeFdArgs, commonExcludeDirNames)
 			homeFdArgs = append(homeFdArgs, ".", homeDirpath)
 
 			if err := runFd(w, homeFdArgs); err != nil {
@@ -68,8 +70,8 @@ func ListFiles(w io.Writer, mode Mode) error {
 			}
 
 			// Add back excluded dirs in HOME (printed as full paths)
-			addBackExcludedDirs(w, homeDirpath, pwd, CommonExcludeDirs)
-			addBackExcludedDirs(w, homeDirpath, pwd, HomeExcludeDirs)
+			addBackExcludedDirs(w, homeDirpath, pwd, commonExcludeDirNames)
+			addBackExcludedDirs(w, homeDirpath, pwd, homeExcludeDirNames)
 		}
 
 		// /tmp/ and / as literal entries
