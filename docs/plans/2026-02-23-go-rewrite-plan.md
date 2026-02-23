@@ -11,7 +11,9 @@ cmdk Go Rewrite Implementation Plan
 
 **Design doc:** `docs/plans/2026-02-23-go-rewrite-design.md`
 
-**Reference files (existing shell implementation):**
+**All Go code lives in the `go/` subdirectory.** The existing shell scripts remain untouched at the repo root.
+
+**Reference files (existing shell implementation — do NOT modify these):**
 - `cmdk-core.sh` — orchestration, fzf launch, categorization, output formatting
 - `list-files.sh` — fd invocation, exclude lists, three modes, special entries
 - `preview.sh` — preview dispatch (bat/ls/tiv/pdftotext)
@@ -24,36 +26,43 @@ Task 1: Initialize Go module and Cobra skeleton
 ------------------------------------------------
 
 **Files:**
-- Create: `go.mod`
-- Create: `main.go`
-- Create: `cmd/root.go`
+- Create: `go/go.mod`
+- Create: `go/main.go`
+- Create: `go/cmd/root.go`
 
-**Step 1: Initialize Go module**
-
-Run:
-```bash
-go mod init github.com/mieubrisse/cmdk
-```
-
-Expected: `go.mod` created with module path `github.com/mieubrisse/cmdk`
-
-**Step 2: Install Cobra dependency**
+**Step 1: Create the go/ directory**
 
 Run:
 ```bash
-go get github.com/spf13/cobra@latest
+mkdir -p go/cmd
 ```
 
-**Step 3: Install stacktrace dependency**
+**Step 2: Initialize Go module**
 
 Run:
 ```bash
-go get github.com/mieubrisse/stacktrace@latest
+cd go && go mod init github.com/mieubrisse/cmdk && cd ..
 ```
 
-**Step 4: Create main.go**
+Expected: `go/go.mod` created with module path `github.com/mieubrisse/cmdk`
 
-Create `main.go`:
+**Step 3: Install Cobra dependency**
+
+Run:
+```bash
+cd go && go get github.com/spf13/cobra@latest && cd ..
+```
+
+**Step 4: Install stacktrace dependency**
+
+Run:
+```bash
+cd go && go get github.com/mieubrisse/stacktrace@latest && cd ..
+```
+
+**Step 5: Create go/main.go**
+
+Create `go/main.go`:
 
 ```go
 package main
@@ -73,9 +82,9 @@ func main() {
 }
 ```
 
-**Step 5: Create cmd/root.go with run subcommand**
+**Step 6: Create go/cmd/root.go with run subcommand**
 
-Create `cmd/root.go`. This defines the root command (which just prints help) and the `run` subcommand (which the shell function calls). The `run` subcommand accepts `-o` and `-s` flags.
+Create `go/cmd/root.go`. This defines the root command (which just prints help) and the `run` subcommand (which the shell function calls). The `run` subcommand accepts `-o` and `-s` flags.
 
 ```go
 package cmd
@@ -117,33 +126,33 @@ func runCmdk(command *cobra.Command, args []string) error {
 }
 ```
 
-**Step 6: Verify it builds and runs**
+**Step 7: Verify it builds and runs**
 
 Run:
 ```bash
-go build -o cmdk .
+cd go && go build -o cmdk . && cd ..
 ```
 
-Expected: Binary `cmdk` created.
+Expected: Binary `go/cmdk` created.
 
 Run:
 ```bash
-./cmdk --help
+go/cmdk --help
 ```
 
 Expected: Help output showing "Terminal file navigator" and the `run` subcommand.
 
 Run:
 ```bash
-./cmdk run --help
+go/cmdk run --help
 ```
 
 Expected: Help output showing `-o` and `-s` flags.
 
-**Step 7: Commit**
+**Step 8: Commit**
 
 ```bash
-git add main.go cmd/root.go go.mod go.sum
+git add go/
 git commit -m "Initialize Go module with Cobra skeleton"
 ```
 
@@ -153,14 +162,21 @@ Task 2: Implement file listing (replaces list-files.sh)
 --------------------------------------------------------
 
 **Files:**
-- Create: `internal/listing/excludes.go`
-- Create: `internal/listing/listing.go`
+- Create: `go/internal/listing/excludes.go`
+- Create: `go/internal/listing/listing.go`
 
-**Reference:** `list-files.sh` — study all three modes, exclude lists, special entries, and the "add back excluded dirs at depth 1" pattern.
+**Reference:** `list-files.sh` (at repo root) — study all three modes, exclude lists, special entries, and the "add back excluded dirs at depth 1" pattern.
 
-**Step 1: Create exclude directory constants**
+**Step 1: Create go/internal/listing directory**
 
-Create `internal/listing/excludes.go`:
+Run:
+```bash
+mkdir -p go/internal/listing
+```
+
+**Step 2: Create exclude directory constants**
+
+Create `go/internal/listing/excludes.go`:
 
 ```go
 package listing
@@ -207,9 +223,9 @@ var HomeExcludeDirs = []string{
 }
 ```
 
-**Step 2: Create listing.go with ListFiles function**
+**Step 3: Create listing.go with ListFiles function**
 
-Create `internal/listing/listing.go`. This replaces `list-files.sh`. It must:
+Create `go/internal/listing/listing.go`. This replaces `list-files.sh`. It must:
 
 1. Build `fd` arguments based on mode (system/pwd/subdirs)
 2. Apply common excludes always, home excludes when in $HOME
@@ -363,23 +379,19 @@ func addBackExcludedDirs(w io.Writer, baseDir string, excludes []string) {
 }
 ```
 
-**Step 3: Verify it compiles**
+**Step 4: Verify it compiles**
 
 Run:
 ```bash
-go build ./...
+cd go && go build ./... && cd ..
 ```
 
 Expected: No errors.
 
-**Step 4: Smoke test the listing package manually**
-
-We'll test this properly when it's wired to the `list-files` subcommand in Task 5. For now just verify compilation.
-
 **Step 5: Commit**
 
 ```bash
-git add internal/listing/
+git add go/internal/listing/
 git commit -m "Add file listing package replacing list-files.sh"
 ```
 
@@ -389,13 +401,20 @@ Task 3: Implement file categorization (replaces categorization in cmdk-core.sh)
 --------------------------------------------------------------------------------
 
 **Files:**
-- Create: `internal/categorize/categorize.go`
+- Create: `go/internal/categorize/categorize.go`
 
 **Reference:** `cmdk-core.sh` lines 33-67 — the categorization loop that sorts files into dirs, text_files, and open_targets.
 
-**Step 1: Create categorize.go**
+**Step 1: Create directory**
 
-Create `internal/categorize/categorize.go`. This must match the exact categorization logic from `cmdk-core.sh`:
+Run:
+```bash
+mkdir -p go/internal/categorize
+```
+
+**Step 2: Create categorize.go**
+
+Create `go/internal/categorize/categorize.go`. This must match the exact categorization logic from `cmdk-core.sh`:
 
 - `HOME` literal → directory ($HOME)
 - `*.key` extension → open target (before MIME check, because .key files have `application/zip` MIME)
@@ -497,19 +516,19 @@ func detectMimeType(path string) (string, error) {
 }
 ```
 
-**Step 2: Verify it compiles**
+**Step 3: Verify it compiles**
 
 Run:
 ```bash
-go build ./...
+cd go && go build ./... && cd ..
 ```
 
 Expected: No errors.
 
-**Step 3: Commit**
+**Step 4: Commit**
 
 ```bash
-git add internal/categorize/
+git add go/internal/categorize/
 git commit -m "Add file categorization package replacing cmdk-core.sh categorization"
 ```
 
@@ -519,16 +538,23 @@ Task 4: Implement preview dispatch (replaces preview.sh)
 ---------------------------------------------------------
 
 **Files:**
-- Create: `internal/preview/preview.go`
+- Create: `go/internal/preview/preview.go`
 
-**Reference:** `preview.sh` — the case statement dispatching to bat, ls, tiv, pdftotext, unzip based on MIME type.
+**Reference:** `preview.sh` (at repo root) — the case statement dispatching to bat, ls, tiv, pdftotext, unzip based on MIME type.
 
-**Step 1: Create preview.go**
+**Step 1: Create directory**
 
-Create `internal/preview/preview.go`. Must match `preview.sh` exactly:
+Run:
+```bash
+mkdir -p go/internal/preview
+```
+
+**Step 2: Create preview.go**
+
+Create `go/internal/preview/preview.go`. Must match `preview.sh` exactly:
 
 - `HOME` literal → `ls --color=always $HOME`
-- `text/*` or `application/json` → `bat --style=plain --color=always <path>` (no fallback in shell version — but we should add `cat` fallback for robustness)
+- `text/*` or `application/json` → `bat --style=plain --color=always <path>` (fallback: `cat`)
 - `inode/directory` → `ls --color=always <path>`
 - `image/*` → `tiv -w 100 -h 100 <path>` (stderr suppressed)
 - `application/zip` → `unzip -l <path>`
@@ -617,23 +643,23 @@ func runCommand(name string, args ...string) error {
 }
 ```
 
-**Step 2: Note the duplicate `detectMimeType`**
+**Step 3: Note the duplicate `detectMimeType`**
 
 Both `categorize` and `preview` packages have a `detectMimeType` function. This is intentional for now — they're simple one-liners and keeping packages independent is more important than DRY for 3 lines of code. If this bothers you later, extract to a shared `internal/mime` package.
 
-**Step 3: Verify it compiles**
+**Step 4: Verify it compiles**
 
 Run:
 ```bash
-go build ./...
+cd go && go build ./... && cd ..
 ```
 
 Expected: No errors.
 
-**Step 4: Commit**
+**Step 5: Commit**
 
 ```bash
-git add internal/preview/
+git add go/internal/preview/
 git commit -m "Add preview package replacing preview.sh"
 ```
 
@@ -643,13 +669,20 @@ Task 5: Implement platform open command
 ----------------------------------------
 
 **Files:**
-- Create: `internal/platform/open.go`
+- Create: `go/internal/platform/open.go`
 
 **Reference:** `cmdk-core.sh` line 70-72 — `open "${open_target_filepath}"`
 
-**Step 1: Create open.go**
+**Step 1: Create directory**
 
-Create `internal/platform/open.go`:
+Run:
+```bash
+mkdir -p go/internal/platform
+```
+
+**Step 2: Create open.go**
+
+Create `go/internal/platform/open.go`:
 
 ```go
 package platform
@@ -702,17 +735,17 @@ func getOpenCommand() (string, error) {
 }
 ```
 
-**Step 2: Verify it compiles**
+**Step 3: Verify it compiles**
 
 Run:
 ```bash
-go build ./...
+cd go && go build ./... && cd ..
 ```
 
-**Step 3: Commit**
+**Step 4: Commit**
 
 ```bash
-git add internal/platform/
+git add go/internal/platform/
 git commit -m "Add platform package for system open command"
 ```
 
@@ -722,10 +755,10 @@ Task 6: Wire up hidden subcommands (list-files, preview)
 ---------------------------------------------------------
 
 **Files:**
-- Create: `cmd/list_files.go`
-- Create: `cmd/preview.go`
+- Create: `go/cmd/list_files.go`
+- Create: `go/cmd/preview.go`
 
-**Step 1: Create cmd/list_files.go**
+**Step 1: Create go/cmd/list_files.go**
 
 This hidden subcommand is called by fzf via `FZF_DEFAULT_COMMAND`. It passes through `-o`/`-s` flags.
 
@@ -769,7 +802,7 @@ func runListFiles(command *cobra.Command, args []string) error {
 }
 ```
 
-**Step 2: Create cmd/preview.go**
+**Step 2: Create go/cmd/preview.go**
 
 This hidden subcommand is called by fzf via `--preview`.
 
@@ -802,19 +835,19 @@ func runPreview(command *cobra.Command, args []string) error {
 
 Run:
 ```bash
-go build -o cmdk .
+cd go && go build -o cmdk . && cd ..
 ```
 
 Run:
 ```bash
-./cmdk list-files 2>&1 | head -20
+go/cmdk list-files 2>&1 | head -20
 ```
 
 Expected: File listing output with ANSI colors (or error if `fd` not installed).
 
 Run:
 ```bash
-./cmdk preview README.md
+go/cmdk preview README.md
 ```
 
 Expected: Syntax-highlighted preview of README.md (if bat installed) or plain text.
@@ -822,7 +855,7 @@ Expected: Syntax-highlighted preview of README.md (if bat installed) or plain te
 **Step 4: Commit**
 
 ```bash
-git add cmd/list_files.go cmd/preview.go
+git add go/cmd/list_files.go go/cmd/preview.go
 git commit -m "Add hidden list-files and preview subcommands for fzf"
 ```
 
@@ -832,13 +865,13 @@ Task 7: Implement the run command (replaces cmdk-core.sh orchestration)
 -----------------------------------------------------------------------
 
 **Files:**
-- Modify: `cmd/root.go` — implement the `runCmdk` function
+- Modify: `go/cmd/root.go` — implement the `runCmdk` function
 
 **Reference:** `cmdk-core.sh` — the full orchestration: launch fzf → categorize → open targets → write temp file → output pipe-delimited result.
 
-**Step 1: Implement runCmdk in cmd/root.go**
+**Step 1: Implement runCmdk in go/cmd/root.go**
 
-Update the `runCmdk` function in `cmd/root.go`. This is the core orchestration that replaces `cmdk-core.sh`:
+Update the `runCmdk` function in `go/cmd/root.go`. This is the core orchestration that replaces `cmdk-core.sh`:
 
 1. Find own executable path (for fzf to call `cmdk preview` and `cmdk list-files`)
 2. Build `FZF_DEFAULT_COMMAND` pointing to `cmdk list-files` with flags
@@ -899,7 +932,7 @@ func runCmdk(command *cobra.Command, args []string) error {
 		return stacktrace.Propagate(err, "fzf failed")
 	}
 
-	// Parse selections (one per line)
+	// Parse selections (one per line, strip ANSI codes)
 	selections := parseSelections(string(fzfOutput))
 	if len(selections) == 0 {
 		return nil
@@ -963,13 +996,19 @@ func runCmdk(command *cobra.Command, args []string) error {
 	return nil
 }
 
+var ansiRegex = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+
+func stripANSI(s string) string {
+	return ansiRegex.ReplaceAllString(s, "")
+}
+
 func parseSelections(output string) []string {
 	lines := strings.Split(strings.TrimSpace(output), "\n")
 	var selections []string
 	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed != "" {
-			selections = append(selections, trimmed)
+		cleaned := strings.TrimSpace(stripANSI(line))
+		if cleaned != "" {
+			selections = append(selections, cleaned)
 		}
 	}
 	return selections
@@ -982,7 +1021,7 @@ func shellQuote(s string) string {
 
 **Step 2: Add required imports to root.go**
 
-Update the imports in `cmd/root.go`:
+Update the imports in `go/cmd/root.go`:
 
 ```go
 import (
@@ -990,6 +1029,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/mieubrisse/cmdk/internal/categorize"
@@ -1003,14 +1043,14 @@ import (
 
 Run:
 ```bash
-go build -o cmdk .
+cd go && go build -o cmdk . && cd ..
 ```
 
 **Step 4: Manual smoke test**
 
 Run:
 ```bash
-./cmdk run
+go/cmdk run
 ```
 
 Expected: fzf launches with file listings and previews. Select a text file → pipe-delimited output printed. Select a directory → pipe-delimited output with directory path. Press Escape → no output, no error.
@@ -1018,7 +1058,7 @@ Expected: fzf launches with file listings and previews. Select a text file → p
 **Step 5: Commit**
 
 ```bash
-git add cmd/root.go
+git add go/cmd/root.go
 git commit -m "Implement run command orchestration replacing cmdk-core.sh"
 ```
 
@@ -1028,14 +1068,21 @@ Task 8: Implement shell init subcommand
 ----------------------------------------
 
 **Files:**
-- Create: `shell/init.bash.tmpl`
-- Create: `shell/init.fish.tmpl`
-- Create: `shell/embed.go`
-- Create: `cmd/init_shell.go`
+- Create: `go/shell/init.bash.tmpl`
+- Create: `go/shell/init.fish.tmpl`
+- Create: `go/shell/embed.go`
+- Create: `go/cmd/init_shell.go`
 
-**Step 1: Create the bash/zsh shell template**
+**Step 1: Create directory**
 
-Create `shell/init.bash.tmpl`. This is the shell function that gets output by `cmdk init`. It's based on the existing `cmdk.sh` but calls the Go binary instead of `cmdk-core.sh`.
+Run:
+```bash
+mkdir -p go/shell
+```
+
+**Step 2: Create the bash/zsh shell template**
+
+Create `go/shell/init.bash.tmpl`. This is the shell function that gets output by `cmdk init`. It's based on the existing `cmdk.sh` but calls the Go binary instead of `cmdk-core.sh`.
 
 ```bash
 # cmdk shell integration - generated by cmdk init
@@ -1078,9 +1125,9 @@ function cmdk() {
 }
 ```
 
-**Step 2: Create the fish shell template**
+**Step 3: Create the fish shell template**
 
-Create `shell/init.fish.tmpl`:
+Create `go/shell/init.fish.tmpl`:
 
 ```fish
 # cmdk shell integration - generated by cmdk init
@@ -1119,9 +1166,9 @@ function cmdk
 end
 ```
 
-**Step 3: Create the embed.go file**
+**Step 4: Create the embed.go file**
 
-Create `shell/embed.go`:
+Create `go/shell/embed.go`:
 
 ```go
 package shell
@@ -1135,9 +1182,9 @@ var BashInit string
 var FishInit string
 ```
 
-**Step 4: Create cmd/init_shell.go**
+**Step 5: Create go/cmd/init_shell.go**
 
-Create `cmd/init_shell.go`:
+Create `go/cmd/init_shell.go`:
 
 ```go
 package cmd
@@ -1146,7 +1193,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/mieubrisse/cmdk/shell"
 	"github.com/mieubrisse/stacktrace"
@@ -1188,95 +1234,45 @@ func detectShell() string {
 }
 ```
 
-**Step 5: Verify it compiles and works**
+**Step 6: Verify it compiles and works**
 
 Run:
 ```bash
-go build -o cmdk .
+cd go && go build -o cmdk . && cd ..
 ```
 
 Run:
 ```bash
-./cmdk init
+go/cmdk init
 ```
 
 Expected: Shell function definition printed to stdout (bash/zsh version since that's likely $SHELL).
 
 Run:
 ```bash
-./cmdk init | head -5
+go/cmdk init | head -5
 ```
 
 Expected: First 5 lines of the shell function including the comment header.
 
-**Step 6: Commit**
+**Step 7: Commit**
 
 ```bash
-git add shell/ cmd/init_shell.go
+git add go/shell/ go/cmd/init_shell.go
 git commit -m "Add cmdk init subcommand for shell integration"
 ```
 
 ---
 
-Task 9: Add ANSI stripping for fzf selections
-----------------------------------------------
+Task 9: Add goreleaser configuration
+-------------------------------------
 
 **Files:**
-- Modify: `cmd/root.go` — update `parseSelections` to strip ANSI codes
+- Create: `go/.goreleaser.yaml`
 
-**Context:** fzf with `--ansi` may return selected lines that still contain ANSI color codes from fd's output. The categorization and file operations need clean paths without ANSI escape sequences.
+**Step 1: Create go/.goreleaser.yaml**
 
-**Step 1: Add ANSI stripping to parseSelections**
-
-Add a `stripANSI` function and use it in `parseSelections` in `cmd/root.go`:
-
-```go
-import "regexp"
-
-var ansiRegex = regexp.MustCompile(`\x1b\[[0-9;]*m`)
-
-func stripANSI(s string) string {
-	return ansiRegex.ReplaceAllString(s, "")
-}
-
-func parseSelections(output string) []string {
-	lines := strings.Split(strings.TrimSpace(output), "\n")
-	var selections []string
-	for _, line := range lines {
-		cleaned := strings.TrimSpace(stripANSI(line))
-		if cleaned != "" {
-			selections = append(selections, cleaned)
-		}
-	}
-	return selections
-}
-```
-
-**Step 2: Verify it compiles**
-
-Run:
-```bash
-go build -o cmdk .
-```
-
-**Step 3: Commit**
-
-```bash
-git add cmd/root.go
-git commit -m "Strip ANSI codes from fzf selections before categorization"
-```
-
----
-
-Task 10: Add goreleaser configuration
---------------------------------------
-
-**Files:**
-- Create: `.goreleaser.yaml`
-
-**Step 1: Create .goreleaser.yaml**
-
-Create `.goreleaser.yaml`:
+Create `go/.goreleaser.yaml`:
 
 ```yaml
 version: 2
@@ -1329,27 +1325,28 @@ changelog:
 **Step 2: Commit**
 
 ```bash
-git add .goreleaser.yaml
+git add go/.goreleaser.yaml
 git commit -m "Add goreleaser configuration for Homebrew distribution"
 ```
 
 ---
 
-Task 11: End-to-end manual testing
+Task 10: End-to-end manual testing
 -----------------------------------
 
 **No files changed — this is a testing task.**
 
 Build the final binary:
 
+Run:
 ```bash
-go build -o cmdk .
+cd go && go build -o cmdk . && cd ..
 ```
 
 **Test 1: cmdk init outputs valid shell function**
 
 ```bash
-./cmdk init
+go/cmdk init
 ```
 
 Verify: outputs a `function cmdk()` definition with no errors.
@@ -1357,7 +1354,7 @@ Verify: outputs a `function cmdk()` definition with no errors.
 **Test 2: cmdk init can be eval'd**
 
 ```bash
-eval "$(./cmdk init)"
+eval "$(go/cmdk init)"
 type cmdk
 ```
 
@@ -1366,7 +1363,7 @@ Verify: `cmdk is a function` (bash) or `cmdk is a shell function` (zsh).
 **Test 3: list-files produces output**
 
 ```bash
-./cmdk list-files | head -20
+go/cmdk list-files | head -20
 ```
 
 Verify: file listing with ANSI colors. Last lines should include "HOME" and "..".
@@ -1374,7 +1371,7 @@ Verify: file listing with ANSI colors. Last lines should include "HOME" and ".."
 **Test 4: list-files -o limits to depth 1**
 
 ```bash
-./cmdk list-files -o | head -20
+go/cmdk list-files -o | head -20
 ```
 
 Verify: only files/dirs in current directory, no deep paths.
@@ -1382,7 +1379,7 @@ Verify: only files/dirs in current directory, no deep paths.
 **Test 5: list-files -s shows subdirectories**
 
 ```bash
-./cmdk list-files -s | head -20
+go/cmdk list-files -s | head -20
 ```
 
 Verify: recursive listing of current directory.
@@ -1390,7 +1387,7 @@ Verify: recursive listing of current directory.
 **Test 6: preview works for text files**
 
 ```bash
-./cmdk preview README.md
+go/cmdk preview README.md
 ```
 
 Verify: syntax-highlighted (bat) or plain text (cat) output.
@@ -1398,7 +1395,7 @@ Verify: syntax-highlighted (bat) or plain text (cat) output.
 **Test 7: preview works for directories**
 
 ```bash
-./cmdk preview .
+go/cmdk preview .
 ```
 
 Verify: colored directory listing.
@@ -1406,7 +1403,7 @@ Verify: colored directory listing.
 **Test 8: Full flow — run command**
 
 ```bash
-./cmdk run
+go/cmdk run
 ```
 
 Verify:
@@ -1419,7 +1416,7 @@ Verify:
 **Test 9: Full flow via shell function**
 
 ```bash
-eval "$(./cmdk init)"
+eval "$(go/cmdk init)"
 cmdk
 ```
 
@@ -1440,60 +1437,27 @@ Verify: no stale cmdk temp files (the shell function deleted it).
 
 ---
 
-Task 12: Update README for Go version
---------------------------------------
+Task 11: Add .gitignore for Go build artifacts
+-----------------------------------------------
 
 **Files:**
-- Modify: `README.md`
+- Create: `go/.gitignore`
 
-**Step 1: Read the current README**
+**Step 1: Create go/.gitignore**
 
-Read `README.md` to understand current structure.
+Create `go/.gitignore`:
 
-**Step 2: Update installation instructions**
-
-Update the README to reflect the new Go-based installation while keeping the existing usage docs. The key changes:
-
-- Primary install method: `brew install mieubrisse/tap/cmdk` (once Homebrew tap is set up)
-- Alternative: `go install github.com/mieubrisse/cmdk@latest`
-- Shell integration: `eval "$(cmdk init)"` instead of `source ~/.cmdk/cmdk.sh`
-- Remove references to cloning the repo for installation
-- Keep all usage instructions (they don't change)
-- Keep dependency list (fzf, fd, bat, tiv, poppler still required)
-
-**Step 3: Commit**
-
-```bash
-git add README.md
-git commit -m "Update README for Go-based installation"
 ```
-
----
-
-Task 13: Clean up old shell scripts
-------------------------------------
-
-**Files:**
-- Move (don't delete): `cmdk-core.sh`, `list-files.sh`, `preview.sh`, `cmdk.sh`, `cmdk.fish`
-
-**Step 1: Move old scripts to legacy directory**
-
-```bash
-mkdir -p legacy
-git mv cmdk-core.sh legacy/
-git mv list-files.sh legacy/
-git mv preview.sh legacy/
-git mv cmdk.sh legacy/
-git mv cmdk.fish legacy/
+# Go build output
+cmdk
 ```
 
 **Step 2: Commit**
 
 ```bash
-git commit -m "Move shell scripts to legacy directory"
+git add go/.gitignore
+git commit -m "Add .gitignore for Go build artifacts"
 ```
-
-**Note:** Keep the old scripts around in `legacy/` for reference. They can be fully removed in a later version.
 
 ---
 
@@ -1505,8 +1469,8 @@ Post-implementation notes
 After the code is merged and tagged, you'll need to:
 1. Create a `mieubrisse/homebrew-tap` repository on GitHub (if it doesn't exist)
 2. Install goreleaser: `brew install goreleaser`
-3. Tag a release: `git tag v0.1.0`
-4. Run: `goreleaser release --clean`
+3. Tag a release: `git tag v0.1.0` (from the `go/` directory)
+4. Run: `cd go && goreleaser release --clean`
 
 This creates the Homebrew formula automatically from `.goreleaser.yaml`.
 
@@ -1517,3 +1481,4 @@ This creates the Homebrew formula automatically from `.goreleaser.yaml`.
 - CI/CD with GitHub Actions
 - Tests (unit tests for categorization, listing argument building)
 - Shell completion via Cobra
+- Move Go code to repo root and remove old shell scripts

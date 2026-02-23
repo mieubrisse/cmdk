@@ -142,32 +142,40 @@ Note: the shell function deletes the temp file after reading it. This is the sim
 Project Structure
 -----------------
 
+All Go code lives in a `go/` subdirectory. The existing shell scripts remain untouched at the repo root during development.
+
 ```
 cmdk/
-├── main.go
-├── go.mod
-├── go.sum
-├── .goreleaser.yaml
-├── cmd/
-│   ├── root.go              # Cobra root + `run` subcommand
-│   ├── init_shell.go        # `cmdk init` subcommand
-│   ├── list_files.go        # `cmdk list-files` hidden subcommand
-│   └── preview.go           # `cmdk preview` hidden subcommand
-├── internal/
-│   ├── listing/
-│   │   ├── listing.go       # fd invocation, exclude lists, special entries
-│   │   └── excludes.go      # Exclude directory constants
-│   ├── categorize/
-│   │   └── categorize.go    # MIME-based file categorization
-│   ├── preview/
-│   │   └── preview.go       # Preview dispatch (bat/ls/tiv/pdftotext)
-│   └── platform/
-│       └── open.go          # open vs xdg-open
-├── shell/
-│   ├── embed.go             # go:embed for shell templates
-│   ├── init.bash.tmpl       # Bash/zsh function template
-│   └── init.fish.tmpl       # Fish function template
-└── README.md
+├── cmdk-core.sh             # (existing, untouched)
+├── list-files.sh            # (existing, untouched)
+├── preview.sh               # (existing, untouched)
+├── cmdk.sh                  # (existing, untouched)
+├── cmdk.fish                # (existing, untouched)
+├── README.md
+└── go/
+    ├── main.go
+    ├── go.mod
+    ├── go.sum
+    ├── .goreleaser.yaml
+    ├── cmd/
+    │   ├── root.go              # Cobra root + `run` subcommand
+    │   ├── init_shell.go        # `cmdk init` subcommand
+    │   ├── list_files.go        # `cmdk list-files` hidden subcommand
+    │   └── preview.go           # `cmdk preview` hidden subcommand
+    ├── internal/
+    │   ├── listing/
+    │   │   ├── listing.go       # fd invocation, exclude lists, special entries
+    │   │   └── excludes.go      # Exclude directory constants
+    │   ├── categorize/
+    │   │   └── categorize.go    # MIME-based file categorization
+    │   ├── preview/
+    │   │   └── preview.go       # Preview dispatch (bat/ls/tiv/pdftotext)
+    │   └── platform/
+    │       └── open.go          # open vs xdg-open
+    └── shell/
+        ├── embed.go             # go:embed for shell templates
+        ├── init.bash.tmpl       # Bash/zsh function template
+        └── init.fish.tmpl       # Fish function template
 ```
 
 ### Package responsibilities
