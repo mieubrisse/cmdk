@@ -1,0 +1,45 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: cmdk
+    main: .
+    binary: cmdk
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - id: cmdk
+    format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+
+brews:
+  - name: cmdk
+    repository:
+      owner: mieubrisse
+      name: homebrew-tap
+    homepage: https://github.com/mieubrisse/cmdk
+    description: "Terminal file navigator — ⌘-K for your shell"
+    install: |
+      bin.install "cmdk"
+    test: |
+      system "#{bin}/cmdk", "--help"
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
