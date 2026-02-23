@@ -6,8 +6,8 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "cmdk",
-	Short: "Terminal file navigator -- Cmd-K for your shell",
-	Long:  "cmdk brings the Cmd-K 'access anything' experience to the terminal.\nUsage: eval \"$(cmdk init)\" in your shell rc file.",
+	Short: "Terminal file navigator — ⌘-K for your shell",
+	Long:  "cmdk brings the ⌘-K 'access anything' experience to the terminal.\nUsage: eval \"$(cmdk init)\" in your shell rc file.",
 }
 
 var (
