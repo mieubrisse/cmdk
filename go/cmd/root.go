@@ -127,9 +127,16 @@ func runCmdk(command *cobra.Command, args []string) error {
 			return stacktrace.Propagate(err, "failed to create temp file")
 		}
 		for _, tf := range textFilePaths {
-			fmt.Fprintln(tmpFile, tf)
+			if _, err := fmt.Fprintln(tmpFile, tf); err != nil {
+				tmpFile.Close()
+				os.Remove(tmpFile.Name())
+				return stacktrace.Propagate(err, "failed to write to temp file")
+			}
 		}
-		tmpFile.Close()
+		if err := tmpFile.Close(); err != nil {
+			os.Remove(tmpFile.Name())
+			return stacktrace.Propagate(err, "failed to close temp file")
+		}
 		textFilesFilepath = tmpFile.Name()
 	}
 
