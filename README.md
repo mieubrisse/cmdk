@@ -24,69 +24,87 @@ _I'm extremely grateful to [fzf](https://github.com/junegunn/fzf); this project 
 
 Installation
 ------------
-1. Install `cmdk` and dependencies:
+1. Install dependencies:
    ```sh
-   # NOTE: 'bat', 'tiv', and 'poppler' are optional: for previewing text, image, and PDF files respectively
-   brew install fzf fd bat tiv poppler
+   # Required
+   brew install fzf fd
+
+   # Optional: for previewing text, image, and PDF files respectively
+   brew install bat tiv poppler
    ```
-2. ```sh
+2. Install Go (1.21+) and build `cmdk`:
+   ```sh
+   brew install go
    git clone https://github.com/mieubrisse/cmdk.git ~/.cmdk
+   cd ~/.cmdk/go
+   make build
    ```
-3. Add to your `.zshrc` or `.bashrc`:
+   This produces the `cmdk` binary at `~/.cmdk/go/cmdk`.
+3. Add the binary to your `PATH` and source the shell integration. In your `.zshrc` or `.bashrc`:
    ```sh
-   source ~/.cmdk/cmdk.sh   # Provides a 'cmdk' function in your shell
+   export PATH="${HOME}/.cmdk/go:${PATH}"
+   eval "$(cmdk init)"
    ```
-   Or if you're on `fish`, to your `~/.config/fish/config.fish`:
-   ```sh
-   source ~/.cmdk/cmdk.fish
+   Or if you're on `fish`, in your `~/.config/fish/config.fish`:
+   ```fish
+   fish_add_path ~/.cmdk/go
+   cmdk init | source
    ```
 4. (Optional) Bind the `⌘-k` hotkey (or any other if you prefer) to send the text `cmdk\n` in your terminal:
    <details>
-   <summary>💻 iTerm</summary>
-   
+   <summary>iTerm</summary>
+
    `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
-   
+
    </details>
    <details>
-   <summary>👻 Ghostty</summary>
-   
+   <summary>Ghostty</summary>
+
    ```
    # ~/.config/ghostty/config  (or $XDG_CONFIG_HOME/ghostty/config)
    keybind = cmd+k=text:cmdk\r
    ```
-   
+
    </details>
-5. Open a new shell and press your hotkey (⌘-K if you bound it) or enter `cmdk` (if you don't have a hotkey)
-6. (Optional) If you'd like to use `cmdk`'s functionality with `fzf`'s <Ctrl-T>, add the following to your `.bashrc` or `.zshrc`:
-   ```
-   export FZF_CTRL_T_COMMAND="bash ${HOME}/.cmdk/list-files.sh"
-   export FZF_CTRL_T_OPTS="-m --ansi --scheme=path --preview='bash ${HOME}/.cmdk/preview.sh {}'"
-   ```
-   TODO `fish` 
+5. Open a new shell and press your hotkey (⌘-K if you bound it) or type `cmdk`
 
 Usage
 -----
 Press ⌘-k (or type `cmdk`) and...
 
 - Type to start filtering
-  > 💡 If you're trying to get a directory, add a `/` to the end of your search term. E.g. `down/` will pull up the `Downloads` directory
+  > If you're trying to get a directory, add a `/` to the end of your search term. E.g. `down/` will pull up the `Downloads` directory
 - `Ctrl-j` and `Ctrl-k` to scroll up and down the results list
 - `ENTER` to select the result
 - `TAB` to select multiple items before `ENTER`
 - `Ctrl-u` to clear the selection
 
-> ⚠️ Some directories like `Library`, `/`, and `.git` are full of stuff users don't need to access, so their contents are excluded. To get to their contents, first ⌘-k to them and then ⌘-k again to see their contents.
+> Some directories like `Library`, `/`, and `.git` are full of stuff users don't need to access, so their contents are excluded. To get to their contents, first ⌘-k to them and then ⌘-k again to see their contents.
 
-> 💡 Sometimes you only want to jump to the contents of the current directory. This can be done by calling `cmdk -o` to list **o**nly the contents of the current directory (no recursing) or `cmdk -s` to list **s**ubdirectories (recursing). I've set up separate iTerm hotkeys: `⌘-k` to send `cmdk\n`, and `⌘-shift-k` for `cmdk -s\n`.
+> Sometimes you only want to jump to the contents of the current directory. This can be done by calling `cmdk -o` to list **o**nly the contents of the current directory (no recursing) or `cmdk -s` to list **s**ubdirectories (recursing). I've set up separate iTerm hotkeys: `⌘-k` to send `cmdk\n`, and `⌘-shift-k` for `cmdk -s\n`.
 
-### Command-line Flags
+### Command-line flags
 
-- `-o` - Only list the contents of the current directory at depth 1 (original behavior)
+- `-o` - Only list the contents of the current directory at depth 1
 - `-s` - List all contents of the current directory recursively, including subdirectories
+
+Building from source
+--------------------
+```sh
+cd go/
+make build    # produces ./cmdk
+make clean    # removes the binary
+```
+
+Or without Make:
+```sh
+cd go/
+go build -o cmdk .
+```
 
 Feedback
 --------
-Hi HN! I'd love to hear how you're using cmdk, and making it your own.
+I'd love to hear how you're using cmdk, and making it your own.
 
 TODO
 ----
