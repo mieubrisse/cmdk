@@ -66,7 +66,12 @@ Installation
    ```
 
    </details>
-5. Open a new shell and press your hotkey (⌘-K if you bound it) or type `cmdk`
+5. (Optional) To use cmdk's file listing and previews with fzf's `Ctrl-T`, add to your `.zshrc` or `.bashrc`:
+   ```sh
+   export FZF_CTRL_T_COMMAND="cmdk list-files"
+   export FZF_CTRL_T_OPTS="-m --ansi --scheme=path --preview='cmdk preview {}'"
+   ```
+6. Open a new shell and press your hotkey (⌘-K if you bound it) or type `cmdk`
 
 Usage
 -----
