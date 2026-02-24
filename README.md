@@ -88,7 +88,12 @@ Press ⌘-k (or type `cmdk`) and...
 
 Building from source
 --------------------
-cmdk requires `fzf` and `fd` at runtime (`brew install fzf fd`).
+cmdk requires `fzf` and `fd` at runtime. Optionally, install `bat`, `tiv`, and `poppler` for richer file previews:
+
+```sh
+brew install fzf fd            # required
+brew install bat tiv poppler   # optional: text, image, and PDF previews
+```
 
 ```sh
 cd go/
