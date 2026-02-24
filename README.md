@@ -88,6 +88,8 @@ Press ⌘-k (or type `cmdk`) and...
 
 Building from source
 --------------------
+cmdk requires `fzf` and `fd` at runtime (`brew install fzf fd`).
+
 ```sh
 cd go/
 make build    # produces ./cmdk
