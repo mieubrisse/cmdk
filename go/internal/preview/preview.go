@@ -19,8 +19,11 @@ func Preview(path string) error {
 
 	mimeType, err := detectMimeType(path)
 	if err != nil {
-		// If MIME detection fails, print the error rather than crashing the preview pane
-		fmt.Fprintf(os.Stdout, "Cannot preview: %v\n", err)
+		if _, lookErr := exec.LookPath("file"); lookErr != nil {
+			fmt.Fprintln(os.Stdout, "Preview requires the 'file' command, which was not found.\nInstall Xcode command-line tools: xcode-select --install")
+		} else {
+			fmt.Fprintf(os.Stdout, "Cannot detect file type for preview: %v\n", err)
+		}
 		return nil
 	}
 
@@ -28,7 +31,7 @@ func Preview(path string) error {
 	case strings.HasPrefix(mimeType, "text/"), mimeType == "application/json":
 		return previewText(path)
 	case mimeType == "inode/directory":
-		return runCommand("ls", "--color=always", path)
+		return previewDirectory(path)
 	case strings.HasPrefix(mimeType, "image/"):
 		return previewImage(path)
 	case mimeType == "application/zip":
@@ -45,8 +48,20 @@ func previewText(path string) error {
 	if _, err := exec.LookPath("bat"); err == nil {
 		return runCommand("bat", "--style=plain", "--color=always", path)
 	}
-	fmt.Fprintln(os.Stderr, "Tip: install bat for syntax-highlighted previews (brew install bat)")
 	return runCommand("cat", path)
+}
+
+func previewDirectory(path string) error {
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		fmt.Fprintf(os.Stdout, "Cannot list directory: %v\n", err)
+		return nil
+	}
+	if len(entries) == 0 {
+		fmt.Fprintln(os.Stdout, "(empty directory)")
+		return nil
+	}
+	return runCommand("ls", "--color=always", path)
 }
 
 func previewImage(path string) error {

@@ -11,7 +11,7 @@ function cmdk
     set dir_to_cd $response_parts[2]
 
     if test -n "$dir_to_cd"
-        cd "$dir_to_cd"
+        cd "$dir_to_cd"; or begin; echo "cmdk: failed to cd to $dir_to_cd" >&2; return 1; end
     end
 
     if test -n "$text_files_filepath"

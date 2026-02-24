@@ -42,6 +42,11 @@ func Execute() error {
 }
 
 func runCmdk(command *cobra.Command, args []string) error {
+	// Verify required dependencies are available before doing anything
+	if err := checkRequiredDeps(); err != nil {
+		return err
+	}
+
 	// Find our own binary path so fzf can call back into cmdk for preview/list-files
 	exeFilepath, err := os.Executable()
 	if err != nil {
@@ -85,7 +90,7 @@ func runCmdk(command *cobra.Command, args []string) error {
 				return nil
 			}
 		}
-		return stacktrace.Propagate(err, "fzf failed")
+		return stacktrace.Propagate(err, "fzf exited unexpectedly")
 	}
 
 	selections := parseSelections(string(fzfOutput))
@@ -116,7 +121,10 @@ func runCmdk(command *cobra.Command, args []string) error {
 	}
 
 	if len(dirPaths) > 1 {
-		return stacktrace.NewError("cannot cd to more than one directory at a time")
+		return stacktrace.NewError(
+			"cannot cd to more than one directory at a time (selected: %s); use TAB to multi-select only files",
+			strings.Join(dirPaths, ", "),
+		)
 	}
 
 	// Write text file paths to a temp file for the shell wrapper to consume
@@ -167,6 +175,24 @@ func parseSelections(output string) []string {
 		}
 	}
 	return selections
+}
+
+func checkRequiredDeps() error {
+	var missing []string
+	if _, err := exec.LookPath("fzf"); err != nil {
+		missing = append(missing, "fzf")
+	}
+	if _, err := exec.LookPath("fd"); err != nil {
+		missing = append(missing, "fd")
+	}
+	if len(missing) > 0 {
+		return stacktrace.NewError(
+			"required dependencies not found: %s\nInstall them with: brew install %s",
+			strings.Join(missing, ", "),
+			strings.Join(missing, " "),
+		)
+	}
+	return nil
 }
 
 func shellQuote(s string) string {

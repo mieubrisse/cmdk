@@ -8,10 +8,10 @@ import (
 )
 
 var listFilesCmd = &cobra.Command{
-	Use:    "list-files",
-	Short:  "List files for fzf (internal use)",
-	Hidden: true,
-	RunE:   runListFiles,
+	Use:   "list-files",
+	Short: "List files for fzf selection",
+	Long:  "Lists files from the current directory, HOME, and root.\nUseful as FZF_CTRL_T_COMMAND for fzf shell integration.",
+	RunE:  runListFiles,
 }
 
 var (

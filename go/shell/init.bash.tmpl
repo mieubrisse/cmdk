@@ -11,7 +11,7 @@ function cmdk() {
     IFS="|" read -r text_files_filepath dir_to_cd <<< "${result}"
 
     if [ -n "${dir_to_cd}" ]; then
-        cd "${dir_to_cd}" || return 1
+        cd "${dir_to_cd}" || { echo "cmdk: failed to cd to ${dir_to_cd}" >&2; return 1; }
     fi
 
     if [ -n "${text_files_filepath}" ]; then

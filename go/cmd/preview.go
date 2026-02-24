@@ -6,11 +6,11 @@ import (
 )
 
 var previewCmd = &cobra.Command{
-	Use:    "preview [path]",
-	Short:  "Preview a file for fzf (internal use)",
-	Hidden: true,
-	Args:   cobra.ExactArgs(1),
-	RunE:   runPreview,
+	Use:   "preview [path]",
+	Short: "Preview a file's contents in the terminal",
+	Long:  "Renders a preview of the given file to stdout.\nUseful as an fzf --preview command.",
+	Args:  cobra.ExactArgs(1),
+	RunE:  runPreview,
 }
 
 func init() {
