@@ -13,12 +13,14 @@ This is ⌘-k for the terminal: access anything on your filesystem, from anywher
 
 ![](./demo2.png)
 
-When you press enter, the type of selected files are identified and...
+When you press enter, selected files are identified by type and opened accordingly:
 
 - Directories get `cd`d to
-- Text files get opened in the command of your [`$EDITOR` variable](https://bash.cyberciti.biz/guide/$EDITOR_variable) (or `vim -O` if it's unset)
+- Text files get opened in your [`$EDITOR`](https://bash.cyberciti.biz/guide/$EDITOR_variable) (or `vim -O` if unset)
 - Images and PDFs get opened in the Preview app
 - `.key` files get opened in Keynote
+
+> **Note:** cmdk is currently macOS-focused. File opening (Preview, Keynote, `open` command) assumes macOS. The core navigation works on Linux, but file-open behavior may vary.
 
 _I'm extremely grateful to [fzf](https://github.com/junegunn/fzf); this project wouldn't be possible without it. I'd been fed up with terminal navigation for a decade, and fzf was the missing piece needed to make cmdk possible._
 
@@ -43,11 +45,11 @@ Installation
    ```fish
    cmdk init | source
    ```
-3. (Optional) Bind the `⌘-k` hotkey (or any other if you prefer) to send the text `cmdk\n` in your terminal:
+3. (Optional) Bind the `⌘-k` hotkey (or any other you prefer) to type `cmdk` + Enter in your terminal:
    <details>
    <summary>iTerm</summary>
 
-   `Settings → Profiles → Keys → Keybindings → + → Send Text`, then binding `⌘-k` to send the text `cmdk\n`
+   `Settings → Profiles → Keys → Keybindings → + → Send Text`, then bind `⌘-k` to send the text `cmdk\n`
 
    </details>
    <details>
@@ -64,6 +66,11 @@ Installation
    export FZF_CTRL_T_COMMAND="cmdk list-files"
    export FZF_CTRL_T_OPTS="-m --ansi --scheme=path --preview='cmdk preview {}'"
    ```
+   Or in `~/.config/fish/config.fish`:
+   ```fish
+   set -gx FZF_CTRL_T_COMMAND "cmdk list-files"
+   set -gx FZF_CTRL_T_OPTS "-m --ansi --scheme=path --preview='cmdk preview {}'"
+   ```
 5. Open a new shell and press your hotkey (⌘-K if you bound it) or type `cmdk`
 
 Usage
@@ -77,9 +84,9 @@ Press ⌘-k (or type `cmdk`) and...
 - `TAB` to select multiple items before `ENTER`
 - `Ctrl-u` to clear the selection
 
-> Some directories like `Library`, `/`, and `.git` are full of stuff users don't need to access, so their contents are excluded. To get to their contents, first ⌘-k to them and then ⌘-k again to see their contents.
+> Some directories like `Library`, `/`, and `.git` are full of stuff you don't typically need to browse, so their contents are excluded. To get into them, first ⌘-k to the directory itself, then ⌘-k again to see its contents.
 
-> Sometimes you only want to jump to the contents of the current directory. This can be done by calling `cmdk -o` to list **o**nly the contents of the current directory (no recursing) or `cmdk -s` to list **s**ubdirectories (recursing). I've set up separate iTerm hotkeys: `⌘-k` to send `cmdk\n`, and `⌘-shift-k` for `cmdk -s\n`.
+> Sometimes you only want to navigate within the current directory. Use `cmdk -o` to list **o**nly the current directory's contents (no recursing) or `cmdk -s` to list **s**ubdirectories (recursing). Tip: you can set up separate terminal hotkeys for these — e.g., `⌘-k` for `cmdk\n` and `⌘-shift-k` for `cmdk -s\n`.
 
 ### Command-line flags
 
@@ -88,10 +95,10 @@ Press ⌘-k (or type `cmdk`) and...
 
 Building from source
 --------------------
-cmdk requires `fzf` and `fd` at runtime. Optionally, install `bat`, `tiv`, and `poppler` for richer file previews:
+You need Go 1.25+ and the runtime dependencies installed:
 
 ```sh
-brew install fzf fd            # required
+brew install go fzf fd         # required
 brew install bat tiv poppler   # optional: text, image, and PDF previews
 ```
 
