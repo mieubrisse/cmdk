@@ -1,5 +1,7 @@
 version: 2
 
+project_name: cmdk
+
 before:
   hooks:
     - go mod tidy
@@ -16,26 +18,18 @@ builds:
     goarch:
       - amd64
       - arm64
+    ldflags:
+      - -s -w
 
 archives:
   - id: cmdk
-    format: tar.gz
-    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
-
-brews:
-  - name: cmdk
-    repository:
-      owner: mieubrisse
-      name: homebrew-tap
-    homepage: https://github.com/mieubrisse/cmdk
-    description: "Terminal file navigator — ⌘-K for your shell"
-    install: |
-      bin.install "cmdk"
-    test: |
-      system "#{bin}/cmdk", "--help"
+    formats:
+      - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 checksum:
   name_template: "checksums.txt"
+  algorithm: sha256
 
 changelog:
   sort: asc
@@ -43,3 +37,23 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+      - "^ci:"
+      - "^chore:"
+
+brews:
+  - name: cmdk
+    repository:
+      owner: mieubrisse
+      name: homebrew-cmdk
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/mieubrisse/cmdk"
+    description: "Terminal file navigator — ⌘-K for your shell"
+    license: "MIT"
+    dependencies:
+      - name: fzf
+      - name: fd
+    install: |
+      bin.install "cmdk"
+    test: |
+      system "#{bin}/cmdk", "--help"
