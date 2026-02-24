@@ -24,33 +24,26 @@ _I'm extremely grateful to [fzf](https://github.com/junegunn/fzf); this project 
 
 Installation
 ------------
-1. Install dependencies:
+1. Install cmdk:
    ```sh
-   # Required
-   brew install fzf fd
+   brew install mieubrisse/cmdk/cmdk
+   ```
+   This installs the `cmdk` binary along with its required dependencies (`fzf` and `fd`).
 
-   # Optional: for previewing text, image, and PDF files respectively
+   Optionally, install tools for richer file previews:
+   ```sh
+   # For previewing text, image, and PDF files respectively
    brew install bat tiv poppler
    ```
-2. Install Go (1.21+) and build `cmdk`:
+2. Source the shell integration. In your `.zshrc` or `.bashrc`:
    ```sh
-   brew install go
-   git clone https://github.com/mieubrisse/cmdk.git ~/.cmdk
-   cd ~/.cmdk/go
-   make build
-   ```
-   This produces the `cmdk` binary at `~/.cmdk/go/cmdk`.
-3. Add the binary to your `PATH` and source the shell integration. In your `.zshrc` or `.bashrc`:
-   ```sh
-   export PATH="${HOME}/.cmdk/go:${PATH}"
    eval "$(cmdk init)"
    ```
    Or if you're on `fish`, in your `~/.config/fish/config.fish`:
    ```fish
-   fish_add_path ~/.cmdk/go
    cmdk init | source
    ```
-4. (Optional) Bind the `⌘-k` hotkey (or any other if you prefer) to send the text `cmdk\n` in your terminal:
+3. (Optional) Bind the `⌘-k` hotkey (or any other if you prefer) to send the text `cmdk\n` in your terminal:
    <details>
    <summary>iTerm</summary>
 
@@ -66,12 +59,12 @@ Installation
    ```
 
    </details>
-5. (Optional) To use cmdk's file listing and previews with fzf's `Ctrl-T`, add to your `.zshrc` or `.bashrc`:
+4. (Optional) To use cmdk's file listing and previews with fzf's `Ctrl-T`, add to your `.zshrc` or `.bashrc`:
    ```sh
    export FZF_CTRL_T_COMMAND="cmdk list-files"
    export FZF_CTRL_T_OPTS="-m --ansi --scheme=path --preview='cmdk preview {}'"
    ```
-6. Open a new shell and press your hotkey (⌘-K if you bound it) or type `cmdk`
+5. Open a new shell and press your hotkey (⌘-K if you bound it) or type `cmdk`
 
 Usage
 -----
