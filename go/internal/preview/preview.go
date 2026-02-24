@@ -32,9 +32,9 @@ func Preview(path string) error {
 	case strings.HasPrefix(mimeType, "image/"):
 		return previewImage(path)
 	case mimeType == "application/zip":
-		return runCommand("unzip", "-l", path)
+		return previewZip(path)
 	case mimeType == "application/pdf":
-		return runCommand("pdftotext", path, "-")
+		return previewPDF(path)
 	default:
 		fmt.Fprintf(os.Stdout, "No preview available (type: %s)\n", mimeType)
 		return nil
@@ -45,6 +45,7 @@ func previewText(path string) error {
 	if _, err := exec.LookPath("bat"); err == nil {
 		return runCommand("bat", "--style=plain", "--color=always", path)
 	}
+	fmt.Fprintln(os.Stderr, "Tip: install bat for syntax-highlighted previews (brew install bat)")
 	return runCommand("cat", path)
 }
 
@@ -55,7 +56,23 @@ func previewImage(path string) error {
 		// stderr intentionally not connected — matches preview.sh: 2>/dev/null
 		return cmd.Run()
 	}
-	fmt.Fprintln(os.Stdout, "Image preview unavailable (install tiv)")
+	fmt.Fprintln(os.Stdout, "Image preview not available.\nInstall tiv for terminal image previews: brew install tiv")
+	return nil
+}
+
+func previewZip(path string) error {
+	if _, err := exec.LookPath("unzip"); err == nil {
+		return runCommand("unzip", "-l", path)
+	}
+	fmt.Fprintln(os.Stdout, "ZIP preview not available.\nInstall unzip to list archive contents: brew install unzip")
+	return nil
+}
+
+func previewPDF(path string) error {
+	if _, err := exec.LookPath("pdftotext"); err == nil {
+		return runCommand("pdftotext", path, "-")
+	}
+	fmt.Fprintln(os.Stdout, "PDF preview not available.\nInstall poppler for PDF text extraction: brew install poppler")
 	return nil
 }
 
