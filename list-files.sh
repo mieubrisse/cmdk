@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -euo pipefail
 script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
@@ -65,7 +65,7 @@ SUBDIRS_MODE="subdirs"  # Show all files in the current directory, and recurse i
 
 
 mode="${SYSTEM_MODE}"
-for arg in "${@}"; do
+for arg in "$@"; do
     case "$arg" in
         -o)
             mode="${PWD_MODE}"

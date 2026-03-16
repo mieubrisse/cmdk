@@ -11,24 +11,23 @@ script_dirpath="$(cd "$(dirname "${0}")" && pwd)"
 
 output_paths=()
 
+# EXPLANATION:
+# -m allows multiple selections
+# --ansi tells fzf to parse the ANSI color codes that we're generating with fd
+# --scheme=path optimizes for path-based input
+# --with-nth allows us to use the custom sorting mechanism
+fzf_output="$(FZF_DEFAULT_COMMAND="bash ${script_dirpath}/list-files.sh $*" fzf \
+    -m \
+    --ansi \
+    --bind='change:top' \
+    --scheme=path \
+    --preview="bash ${script_dirpath}/preview.sh {}")"
+if [ "${?}" -ne 0 ]; then
+    exit 1
+fi
 while IFS="" read -r line; do  # IFS="" -> no splitting (we may have paths with spaces)
     output_paths+=("${line}")
-done < <(
-    # EXPLANATION:
-    # -m allows multiple selections
-    # --ansi tells fzf to parse the ANSI color codes that we're generating with fd
-    # --scheme=path optimizes for path-based input
-    # --with-nth allows us to use the custom sorting mechanism
-    FZF_DEFAULT_COMMAND="bash ${script_dirpath}/list-files.sh ${*}" fzf \
-        -m \
-        --ansi \
-        --bind='change:top' \
-        --scheme=path \
-        --preview="bash ${script_dirpath}/preview.sh {}"
-    if [ "${?}" -ne 0 ]; then
-        return
-    fi
-)
+done <<< "${fzf_output}"
 
 dirs=()
 text_files=()
@@ -67,9 +66,11 @@ for output in "${output_paths[@]}"; do
 done
 
 # We can open open_targets here (no need to pass them to the parent)
-for open_target_filepath in "${open_targets[@]}"; do
-    open "${open_target_filepath}"
-done
+if [ "${#open_targets[@]}" -gt 0 ]; then
+    for open_target_filepath in "${open_targets[@]}"; do
+        open "${open_target_filepath}"
+    done
+fi
 
 # However, text files & dirs need to be passed to the parent, so they
 # get run in the user's shell process (and not this subprocess)
